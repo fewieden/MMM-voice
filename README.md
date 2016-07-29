@@ -31,9 +31,7 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
 
     ```
     function PocketSphinxContinuous(config) {
-      this.setId = config.setId;
-      this.verbose = config.verbose;
-      EventEmitter.call(this);
+      ...
 
       var pc = spawn('pocketsphinx_continuous', [
         '-adcdev',
@@ -41,9 +39,9 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
         '-inmic',
         'yes',
         '-lm',
-        '/modules/MMM-voice' + this.setId + '.lm',
+        'modules/MMM-voice/' + this.setId + '.lm',
         '-dict',
-        '/modules/MMM-voice' + this.setId + '.dic'
+        'modules/MMM-voice/' + this.setId + '.dic'
       ]);
       ...
     ```
@@ -53,3 +51,6 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
 | --- | --- | --- |
 | `timeout` | 15 | time the keyword should be active without saying something |
 | `id` | REQUIRED | id of dictionairy file |
+
+## Custom Dictionairy
+Go to [Sphinx Knowledge Base Tool](http://www.speech.cs.cmu.edu/tools/lmtool-new.html) and create your own
