@@ -19,6 +19,7 @@ Module.register("MMM-voice",{
     // Override dom generator.
     getDom: function() {
         var wrapper = document.createElement("div");
+        wrapper.classList.add('small');
         var i = document.createElement("i");
         i.setAttribute('id', 'microphone');
         i.classList.add('fa');
@@ -34,9 +35,10 @@ Module.register("MMM-voice",{
     },
 
     notificationReceived: function(notification, payload, sender){
-        if(notification === 'ALL_MODULES_STARTED'){
+        if(notification === 'DOM_OBJECTS_CREATED'){
             this.sendSocketNotification('START', {'timeout': this.config.timeout, 'id': this.config.id, 'modules': this.modules});
-        } else if(sender && notification === 'REGISTER_VOICE_MODULE'){
+        } else if(notification === 'REGISTER_VOICE_MODULE'){
+            console.log('REGISTER: %o', payload);
             if(payload.hasOwnProperty('mode')){
                 this.modules.push(payload);
             }
@@ -50,9 +52,9 @@ Module.register("MMM-voice",{
         } else if(notification === 'SLEEPING'){
             this.pulsing = false;
             this.updateDom();
-        } else if(notification === 'ERROR' || notification === 'DEBUG'){
+        } else if(notification === 'ERROR'){
             this.config.mode = notification;
-            Log.log(payload);
+            Log.log('Error: %o', payload);
             this.updateDom();
         } else {
             for(var i = 0; i < this.modules.length; i++){
