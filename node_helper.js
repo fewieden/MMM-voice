@@ -8,16 +8,14 @@ module.exports = NodeHelper.create({
         this.keyword = /(MAGIC MIRROR)/g;
         this.listening = false;
         this.mode = '';
-        this.modes = [
-            {"key": "SPOTIFY", "regex": /(SPOTIFY)/g},
-            {"key": "WEATHER", "regex": /(WEATHER)/g},
-            {"key": "TRAIN", "regex": /(TRAIN)/g},
-            {"key": "SOCCER", "regex": /(SOCCER)/g}
-        ];
     },
 
     socketNotificationReceived: function(notification, payload){
         if(notification == 'START'){
+            this.modes = [];
+            for(var i = 0; i < payload.modules.length; i++){
+                this.modes.push({'key': payload.modules[i].mode, 'regex': new RegExp(payload.modules[i].mode, 'g')});
+            }
 
             this.time = payload.timeout*1000;
             this.ps = new Psc({
@@ -36,7 +34,7 @@ module.exports = NodeHelper.create({
                         }
                         this.timer = setTimeout(() => {
                             this.listening = false;
-                            this.sendSocketNotification('LISTENING', 'Sleeping ... zZzZ');
+                            this.sendSocketNotification('SLEEPING', 'Sleeping ... zZzZ');
                         }, this.time);
                     } else {
                         console.log('No KEYWORD DETECTED');
@@ -45,11 +43,7 @@ module.exports = NodeHelper.create({
 
                     for(var i = 0; i < this.modes.length; i++){
                         if(this.modes[i].regex.test(data)){
-                            if(this.mode != this.modes[i].key){
-                                this.mode = this.modes[i].key;
-                                this.sendSocketNotification('MODE_CHANGED', this.mode);
-                            }
-                            console.log('MODE DETECTED: ' + this.mode);
+                            this.mode = this.modes[i].key;
                             this.sendSocketNotification(this.mode, data);
                             return;
                         }

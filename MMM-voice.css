@@ -1,0 +1,9 @@
+@-webkit-keyframes colorPulse {
+    0% {background-color: #999999;}
+    50% {background-color: #000000;}
+    100% {background-color: #999999;}
+}
+
+.pulse {
+    -webkit-animation: colorPulse 1s infinite;
+}
