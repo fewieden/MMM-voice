@@ -7,11 +7,11 @@ module.exports = NodeHelper.create({
     start: function(){
         this.keyword = /(MAGIC MIRROR)/g;
         this.listening = false;
-        this.mode = '';
+        this.mode = false;
     },
 
     socketNotificationReceived: function(notification, payload){
-        if(notification == 'START'){
+        if(notification === 'START'){
             this.modes = [];
             for(var i = 0; i < payload.modules.length; i++){
                 this.modes.push({'key': payload.modules[i].mode, 'regex': new RegExp(payload.modules[i].mode, 'g')});
@@ -24,7 +24,6 @@ module.exports = NodeHelper.create({
             });
             this.ps.on('data', (data) => {
                 if(typeof data == 'string'){
-                    fs.appendFile('data.log', data);
                     if(this.keyword.test(data) || this.listening){
                         console.log('LISTENING');
                         this.listening = true;
@@ -44,23 +43,19 @@ module.exports = NodeHelper.create({
                     for(var i = 0; i < this.modes.length; i++){
                         if(this.modes[i].regex.test(data)){
                             this.mode = this.modes[i].key;
-                            this.sendSocketNotification(this.mode, data);
+                            this.sendSocketNotification('VOICE', {'mode': this.mode, 'words': data});
                             return;
                         }
                     }
 
                     if(this.mode){
-                        this.sendSocketNotification(this.mode, data);
+                        this.sendSocketNotification('VOICE', {'mode': this.mode, 'words': data});
                     }
                 }
             });
             this.ps.on('error', (error) => {
-                fs.appendFile('error.log', error);
+                fs.appendFile('modules/MMM-voice/error.log', error);
                 this.sendSocketNotification('ERROR', error);
-            });
-            this.ps.on('debug', (data) => {
-                fs.appendFile('debug.log', data);
-                this.sendSocketNotification('DEBUG', data);
             });
         }
     }

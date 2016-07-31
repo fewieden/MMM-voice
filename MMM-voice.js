@@ -20,6 +20,7 @@ Module.register("MMM-voice",{
     getDom: function() {
         var wrapper = document.createElement("div");
         wrapper.classList.add('small');
+        wrapper.style.textAlign = 'left';
         var i = document.createElement("i");
         i.setAttribute('id', 'microphone');
         i.classList.add('fa');
@@ -38,7 +39,6 @@ Module.register("MMM-voice",{
         if(notification === 'DOM_OBJECTS_CREATED'){
             this.sendSocketNotification('START', {'timeout': this.config.timeout, 'id': this.config.id, 'modules': this.modules});
         } else if(notification === 'REGISTER_VOICE_MODULE'){
-            console.log('REGISTER: %o', payload);
             if(payload.hasOwnProperty('mode')){
                 this.modules.push(payload);
             }
@@ -54,12 +54,13 @@ Module.register("MMM-voice",{
             this.updateDom();
         } else if(notification === 'ERROR'){
             this.config.mode = notification;
-            Log.log('Error: %o', payload);
             this.updateDom();
-        } else {
+        } else if(notification === 'VOICE'){
             for(var i = 0; i < this.modules.length; i++){
-                if(notification === this.modules[i].mode){
-                    this.sendNotification(notification, payload);
+                if(payload.mode === this.modules[i].mode){
+                    this.config.mode = payload.mode;
+                    this.sendNotification(notification + '_' + payload.mode, payload.words);
+                    this.updateDom();
                     return;
                 }
             }
