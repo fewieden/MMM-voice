@@ -14,34 +14,35 @@ module.exports = NodeHelper.create({
     keyword: /(MAGIC MIRROR)/g,
     listening: false,
     mode: false,
+    modes: [],
 
     socketNotificationReceived: function(notification, payload){
         if(notification === 'START'){
             this.config = payload.config;
             this.config.keyword = new RegExp(this.config.keyword, 'g') || this.keyword;
-            this.modes = [];
             for(var i = 0; i < payload.modules.length; i++){
                 this.modes.push({'key': payload.modules[i].mode, 'regex': new RegExp(payload.modules[i].mode, 'g')});
             }
 
             this.time = this.config.timeout * 1000;
             this.ps = new Psc({
-                setId: this.config.id,
+                setId: 'MMM-voice',
                 verbose: true,
                 microphone: this.config.microphone
             });
+            this.sendSocketNotification("READY");
             this.ps.on('data', (data) => {
                 if(typeof data == 'string'){
                     if(this.config.keyword.test(data) || this.listening){
                         console.log('LISTENING');
                         this.listening = true;
-                        this.sendSocketNotification('LISTENING', 'Listening...');
+                        this.sendSocketNotification('LISTENING');
                         if(this.timer){
                             clearTimeout(this.timer);
                         }
                         this.timer = setTimeout(() => {
                             this.listening = false;
-                            this.sendSocketNotification('SLEEPING', 'Sleeping ... zZzZ');
+                            this.sendSocketNotification('SLEEPING');
                         }, this.time);
                     } else {
                         console.log('No KEYWORD DETECTED');

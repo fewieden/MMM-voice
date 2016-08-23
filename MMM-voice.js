@@ -6,15 +6,17 @@
  */
 
 Module.register("MMM-voice",{
-    // Default module config.
+
+    icon: "fa-microphone-slash",
+    pulsing: false,
+    modules: [],
+
     defaults: {
-        mode : "No mode detected",
         timeout: 15
     },
 
     start: function(){
-        this.pulsing = false;
-        this.modules = [];
+        this.mode = this.translate("INIT");
         Log.log(this.name + ' is started!');
         Log.info(this.name + ' is waiting for voice modules');
     },
@@ -23,22 +25,18 @@ Module.register("MMM-voice",{
         return ["font-awesome.css", "MMM-voice.css"];
     },
 
-    // Override dom generator.
     getDom: function() {
         var wrapper = document.createElement("div");
-        wrapper.classList.add('small');
-        wrapper.style.textAlign = 'left';
+        wrapper.classList.add('small', 'align-left');
         var i = document.createElement("i");
-        i.setAttribute('id', 'microphone');
-        i.classList.add('fa');
-        i.classList.add('fa-microphone');
+        i.classList.add('fa', this.icon);
         if(this.pulsing){
             i.classList.add('pulse');
         }
-        var mode = document.createElement("span");
-        mode.innerHTML = this.config.mode;
+        var modeSpan = document.createElement("span");
+        modeSpan.innerHTML = this.mode;
         wrapper.appendChild(i);
-        wrapper.appendChild(mode);
+        wrapper.appendChild(modeSpan);
         return wrapper;
     },
 
@@ -53,21 +51,25 @@ Module.register("MMM-voice",{
     },
 
     socketNotificationReceived: function(notification, payload){
-        if(notification === 'LISTENING'){
+        if(notification === 'READY'){
+            this.icon = "fa-microphone";
+            this.mode = this.translate("NO_MODE");
+            this.updateDom(300);
+        } else if(notification === 'LISTENING'){
             this.pulsing = true;
-            this.updateDom();
+            this.updateDom(300);
         } else if(notification === 'SLEEPING'){
             this.pulsing = false;
-            this.updateDom();
+            this.updateDom(300);
         } else if(notification === 'ERROR'){
-            this.config.mode = notification;
-            this.updateDom();
+            this.mode = notification;
+            this.updateDom(300);
         } else if(notification === 'VOICE'){
             for(var i = 0; i < this.modules.length; i++){
                 if(payload.mode === this.modules[i].mode){
-                    this.config.mode = payload.mode;
+                    this.mode = payload.mode;
                     this.sendNotification(notification + '_' + payload.mode, payload.words);
-                    this.updateDom();
+                    this.updateDom(300);
                     return;
                 }
             }

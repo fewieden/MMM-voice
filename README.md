@@ -25,7 +25,6 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
          module: 'MMM-voice',
          position: 'bottom_bar',
          config: {
-             id: 4548,
              microphone: 1,
              ...
          }
@@ -35,7 +34,6 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
 ## Config Options
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `id` | REQUIRED | id of dictionairy file |
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
 | `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. |
 | `timeout` | `15` | time the keyword should be active without saying something |
