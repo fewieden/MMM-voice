@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/fewieden/MMM-voice#readme",
   "dependencies": {
-    "pocketsphinx-continuous": "^1.1.0"
+    "pocketsphinx-continuous": "1.1.0"
   }
 }

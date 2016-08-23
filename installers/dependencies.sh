@@ -188,5 +188,5 @@ fi
 
 
 # displaying audio devices
-echo -e "\e[96m[INFO] Audio Devices"
+echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js"
 cat /proc/asound/cards
