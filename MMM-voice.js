@@ -1,3 +1,10 @@
+/* Magic Mirror
+ * Module: MMM-voice
+ *
+ * By fewieden https://github.com/fewieden/MMM-voice
+ * MIT Licensed.
+ */
+
 Module.register("MMM-voice",{
     // Default module config.
     defaults: {
@@ -37,7 +44,7 @@ Module.register("MMM-voice",{
 
     notificationReceived: function(notification, payload, sender){
         if(notification === 'DOM_OBJECTS_CREATED'){
-            this.sendSocketNotification('START', {'timeout': this.config.timeout, 'id': this.config.id, 'modules': this.modules});
+            this.sendSocketNotification('START', {'config': this.config, 'modules': this.modules});
         } else if(notification === 'REGISTER_VOICE_MODULE'){
             if(payload.hasOwnProperty('mode')){
                 this.modules.push(payload);

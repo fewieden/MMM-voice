@@ -1,30 +1,38 @@
+/* Magic Mirror
+ * Module: MMM-voice
+ *
+ * By fewieden https://github.com/fewieden/MMM-voice
+ * MIT Licensed.
+ */
+
 const Psc = require('pocketsphinx-continuous');
 const fs = require('fs');
 const NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
 
-    start: function(){
-        this.keyword = /(MAGIC MIRROR)/g;
-        this.listening = false;
-        this.mode = false;
-    },
+    keyword: /(MAGIC MIRROR)/g,
+    listening: false,
+    mode: false,
 
     socketNotificationReceived: function(notification, payload){
         if(notification === 'START'){
+            this.config = payload.config;
+            this.config.keyword = new RegExp(this.config.keyword, 'g') || this.keyword;
             this.modes = [];
             for(var i = 0; i < payload.modules.length; i++){
                 this.modes.push({'key': payload.modules[i].mode, 'regex': new RegExp(payload.modules[i].mode, 'g')});
             }
 
-            this.time = payload.timeout*1000;
+            this.time = this.config.timeout * 1000;
             this.ps = new Psc({
-                setId: payload.id,
-                verbose: true
+                setId: this.config.id,
+                verbose: true,
+                microphone: this.config.microphone
             });
             this.ps.on('data', (data) => {
                 if(typeof data == 'string'){
-                    if(this.keyword.test(data) || this.listening){
+                    if(this.config.keyword.test(data) || this.listening){
                         console.log('LISTENING');
                         this.listening = true;
                         this.sendSocketNotification('LISTENING', 'Listening...');
