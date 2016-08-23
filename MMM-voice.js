@@ -25,6 +25,13 @@ Module.register("MMM-voice",{
         return ["font-awesome.css", "MMM-voice.css"];
     },
 
+    getTranslations: function() {
+        return {
+            en: "translations/en.json",
+            de: "translations/de.json"
+        };
+    },
+
     getDom: function() {
         var wrapper = document.createElement("div");
         wrapper.classList.add('small', 'align-left');
