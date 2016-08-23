@@ -178,7 +178,9 @@ if sed \
 -e "/this.verbose = config.verbose;/ a\ this.microphone = config.microphone;" \
 -e "/-inmic/ i\ '-adcdev'," \
 -e "/-inmic/ i\ '-plughw:' \+ this.microphone," \
-index.js -i ;
+-e "/-lm/ a\ 'modules/MMM-voice/' \+" \
+-e "/-dict/ a\ 'modules/MMM-voice/' \+" \
+index.js -i;
 then
     echo -e "\e[32m[STEP 9/9] Manipulating dependencies | Done\e[0m"
 else
