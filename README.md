@@ -31,27 +31,6 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
          }
      }
      ```
- 4. Edit `~/MagicMirror/modules/MMM-voice/node_modules/pocketsphinx-continuous/index.js` to:
- 
-     ```
-     function PocketSphinxContinuous(config) {
-        this.setId = config.setId;
-        this.verbose = config.verbose;
-        this.microphone = config.microphone;
-        EventEmitter.call(this);
-
-        var pc = spawn('pocketsphinx_continuous', [
-            '-adcdev',
-            'plughw:' + this.microphone,
-            '-inmic',
-            'yes',
-            '-lm',
-            'modules/MMM-voice/' + this.setId + '.lm',
-            '-dict',
-            'modules/MMM-voice/' + this.setId + '.dic'
-        ]);
-        ...
-     ```
 
 ## Config Options
 | **Option** | **Default** | **Description** |
