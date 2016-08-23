@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Magic Mirror
+# Module: MMM-voice
+#
+# By fewieden https://github.com/fewieden/MMM-voice
+# MIT Licensed.
+
 echo -e "\e[0m"
 echo '       `/ymNMNds-'
 echo '      :mMMMMMMMMMy`'

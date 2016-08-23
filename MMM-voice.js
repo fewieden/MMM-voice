@@ -1,3 +1,10 @@
+/* Magic Mirror
+ * Module: MMM-voice
+ *
+ * By fewieden https://github.com/fewieden/MMM-voice
+ * MIT Licensed.
+ */
+
 Module.register("MMM-voice",{
     // Default module config.
     defaults: {

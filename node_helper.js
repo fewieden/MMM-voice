@@ -1,3 +1,10 @@
+/* Magic Mirror
+ * Module: MMM-voice
+ *
+ * By fewieden https://github.com/fewieden/MMM-voice
+ * MIT Licensed.
+ */
+
 const Psc = require('pocketsphinx-continuous');
 const fs = require('fs');
 const NodeHelper = require("node_helper");
