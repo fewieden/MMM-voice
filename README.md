@@ -14,6 +14,7 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
   * A microphone
   * npm
   * [PocketSphinx-continuous](https://www.npmjs.com/package/pocketsphinx-continuous)
+  * [File-Compare](https://www.npmjs.com/package/file-compare)
 
 ## Installation
  1. Clone this repo into `~/MagicMirror/modules` directory.
