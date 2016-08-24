@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/fewieden/MMM-voice#readme",
   "dependencies": {
+    "file-compare": "0.0.2",
     "pocketsphinx-continuous": "1.1.0"
   }
 }
