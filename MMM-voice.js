@@ -8,11 +8,23 @@
 Module.register("MMM-voice",{
 
     icon: "fa-microphone-slash",
-    pulsing: false,
-    modules: [],
+    pulsing: true,
+    modules: [
+        {
+            mode: 'voice',
+            sentences: [
+                'hide module',
+                'show module',
+                'turn on',
+                'turn off',
+                'help'
+            ]
+        }
+    ],
 
     defaults: {
-        timeout: 15
+        timeout: 15,
+        keyword: "magic mirror"
     },
 
     start: function(){
@@ -36,7 +48,7 @@ Module.register("MMM-voice",{
         var wrapper = document.createElement("div");
         wrapper.classList.add('small', 'align-left');
         var i = document.createElement("i");
-        i.classList.add('fa', this.icon);
+        i.classList.add('fa', this.icon, 'icon');
         if(this.pulsing){
             i.classList.add('pulse');
         }
@@ -61,6 +73,7 @@ Module.register("MMM-voice",{
         if(notification === 'READY'){
             this.icon = "fa-microphone";
             this.mode = this.translate("NO_MODE");
+            this.pulsing = false;
             this.updateDom(300);
         } else if(notification === 'LISTENING'){
             this.pulsing = true;

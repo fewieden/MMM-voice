@@ -4,10 +4,10 @@
     100% {color: #999999;}
 }
 
-.pulse {
+.MMM-voice .pulse {
     -webkit-animation: colorPulse 1s infinite;
 }
 
-#microphone {
+.MMM-voice .icon {
     margin-right: 5px;
 }
