@@ -104,7 +104,7 @@ echo -e "\e[32m[STEP 4/10] Exporting paths |  Done\e[0m"
 # installing cmuclmtk-0.7
 echo -e "\e[96m[STEP 5/10] Installing cmuclmtk-0.7\e[90m"
 cd ~
-if [ -d "$HOME/cmuclmtk-0.7" -o ! wget https://sourceforge.net/projects/cmusphinx/files/cmuclmtk/0.7/cmuclmtk-0.7.tar.gz -o ! tar -xvzf cmuclmtk-0.7.tar.gz ] ;
+if [[ -d "$HOME/cmuclmtk-0.7" ]] || ! ( wget https://sourceforge.net/projects/cmusphinx/files/cmuclmtk/0.7/cmuclmtk-0.7.tar.gz ) || ! ( tar -xvzf cmuclmtk-0.7.tar.gz ) ;
 then
 	echo -e "\e[31m[STEP 5/10] Installing cmuclmtk-0.7 | Failed\e[0m"
 	exit;
@@ -180,7 +180,7 @@ cd ~/MagicMirror/modules/MMM-voice/node_modules/pocketsphinx-continuous
 if sed \
 -e "/this.verbose = config.verbose;/ a\ this.microphone = config.microphone;" \
 -e "/-inmic/ i\ '-adcdev'," \
--e "/-inmic/ i\ '-plughw:' \+ this.microphone," \
+-e "/-inmic/ i\ 'plughw:' \+ this.microphone," \
 -e "/-lm/ a\ 'modules/MMM-voice/' \+" \
 -e "/-dict/ a\ 'modules/MMM-voice/' \+" \
 index.js -i;
@@ -192,10 +192,10 @@ else
 fi
 
 
-# installing cmuclmtk-0.7
+# installing trained models
 echo -e "\e[96m[STEP 10/10] Installing trained models\e[90m"
-cd ~/MagicMirror/models/MMM-voice
-if [ wget https://sourceforge.net/projects/cmusphinx/files/G2P Models/g2p-seq2seq-cmudict.tar.gz -a tar -xvzf g2p-seq2seq-cmudict.tar.gz ] ;
+cd ~/MagicMirror/modules/MMM-voice
+if ( wget "https://sourceforge.net/projects/cmusphinx/files/G2P Models/g2p-seq2seq-cmudict.tar.gz" ) && ( tar -xvzf g2p-seq2seq-cmudict.tar.gz ) ;
 then
     mv g2p-seq2seq-cmudict model
     rm -f g2p-seq2seq-cmudict.tar.gz
@@ -207,5 +207,5 @@ fi
 
 
 # displaying audio devices
-echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js"
+echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js\n"
 cat /proc/asound/cards
