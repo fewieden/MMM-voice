@@ -7,13 +7,13 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
   * An installation of [MagicMirror<sup>2</sup>](https://github.com/MichMich/MagicMirror)
   * Packages: bison libasound2-dev autoconf automake libtool python-dev swig python-pip
   * [SphinxBase](https://github.com/cmusphinx/sphinxbase)
-  * [pocketsphinx](https://github.com/cmusphinx/pocketsphinx)
+  * [PocketSphinx](https://github.com/cmusphinx/pocketsphinx)
   * [cmuclmtk-0.7](https://sourceforge.net/projects/cmusphinx/files/cmuclmtk/0.7/)
-  * [tensorflow](https://github.com/samjabrahams/tensorflow-on-raspberry-pi)
+  * [TensorFlow](https://github.com/samjabrahams/tensorflow-on-raspberry-pi)
   * [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq)
   * A microphone
   * npm
-  * [pocketsphinx-continuous](https://www.npmjs.com/package/pocketsphinx-continuous)
+  * [PocketSphinx-continuous](https://www.npmjs.com/package/pocketsphinx-continuous)
 
 ## Installation
  1. Clone this repo into `~/MagicMirror/modules` directory.
