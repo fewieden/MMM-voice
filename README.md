@@ -36,7 +36,7 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
-| `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. |
+| `keyword` | `'magic mirror'` | Keyword the mirror starts to listen. |
 | `timeout` | `15` | time the keyword should be active without saying something |
 
 ## Custom Dictionairy

@@ -13,8 +13,8 @@ Module.register("MMM-voice",{
         {
             mode: 'voice',
             sentences: [
-                'hide module',
-                'show module',
+                'hide modules',
+                'show modules',
                 'turn on',
                 'turn off',
                 'help'
@@ -63,7 +63,8 @@ Module.register("MMM-voice",{
         if(notification === 'DOM_OBJECTS_CREATED'){
             this.sendSocketNotification('START', {'config': this.config, 'modules': this.modules});
         } else if(notification === 'REGISTER_VOICE_MODULE'){
-            if(payload.hasOwnProperty('mode')){
+            if(payload.hasOwnProperty('mode') && payload.hasOwnProperty('sentences')){
+                payload.module = sender;
                 this.modules.push(payload);
             }
         }
@@ -88,11 +89,21 @@ Module.register("MMM-voice",{
             for(var i = 0; i < this.modules.length; i++){
                 if(payload.mode === this.modules[i].mode){
                     this.mode = payload.mode;
-                    this.sendNotification(notification + '_' + payload.mode, payload.words);
+                    if(this.mode !== 'voice'){
+                        this.sendNotification(notification + '_' + payload.mode, payload.sentence);
+                    }
                     this.updateDom(300);
                     return;
                 }
             }
+        } else if(notification === 'HIDE'){
+            MM.getModules().enumerate((module) => {
+                module.hide(1000);
+            });
+        } else if(notification === 'SHOW'){
+            MM.getModules().enumerate((module) => {
+                module.show(1000);
+            });
         }
     }
 });
