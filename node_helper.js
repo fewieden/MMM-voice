@@ -95,7 +95,7 @@ module.exports = NodeHelper.create({
         this.ps.on('data', (data) => {
             if(typeof data == 'string'){
                 console.log(data);
-                if(data.indexOf(this.config.keyyword) !== -1 || this.listening){
+                if(data.indexOf(this.config.keyword) !== -1 || this.listening){
                     this.listening = true;
                     this.sendSocketNotification('LISTENING');
                     if(this.timer){
