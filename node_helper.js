@@ -94,7 +94,10 @@ module.exports = NodeHelper.create({
 
         this.ps.on('data', (data) => {
             if(typeof data == 'string'){
-                console.log(data);
+                if(this.config.debug){
+                    console.log(data);
+                    this.sendSocketNotification('DEBUG', data);
+                }
                 if(data.indexOf(this.config.keyword) !== -1 || this.listening){
                     this.listening = true;
                     this.sendSocketNotification('LISTENING');
@@ -128,6 +131,12 @@ module.exports = NodeHelper.create({
                 }
             }
         });
+
+        if(this.config.debug){
+            this.ps.on('debug', (data) => {
+                fs.appendFile('modules/MMM-voice/error.log', data);
+            });
+        }
 
         this.ps.on('error', (error) => {
             if(error){

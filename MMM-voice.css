@@ -1,11 +1,11 @@
-@-webkit-keyframes colorPulse {
+@-webkit-keyframes MMM-voice-pulse {
     0% {color: #999999;}
     50% {color: #000000;}
     100% {color: #999999;}
 }
 
 .MMM-voice .pulse {
-    -webkit-animation: colorPulse 1s infinite;
+    -webkit-animation: MMM-voice-pulse 1s infinite;
 }
 
 .MMM-voice .icon {

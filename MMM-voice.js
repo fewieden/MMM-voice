@@ -24,7 +24,8 @@ Module.register("MMM-voice",{
 
     defaults: {
         timeout: 15,
-        keyword: "magic mirror"
+        keyword: "magic mirror",
+        debug: false,
     },
 
     start: function(){
@@ -56,6 +57,11 @@ Module.register("MMM-voice",{
         modeSpan.innerHTML = this.mode;
         wrapper.appendChild(i);
         wrapper.appendChild(modeSpan);
+        if(this.config.debug){
+            var debug = document.createElement("div");
+            debug.innerHTML = this.debugInformation;
+            wrapper.appendChild(debug);
+        }
         return wrapper;
     },
 
@@ -104,6 +110,9 @@ Module.register("MMM-voice",{
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
+        } else if(notification === 'DEBUG'){
+            this.debugInformation = payload;
+            this.updateDom();
         }
     }
 });
