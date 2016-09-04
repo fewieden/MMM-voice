@@ -40,7 +40,16 @@ module.exports = NodeHelper.create({
         }
         fs.writeFile('modules/MMM-voice/words_temp.txt', words);
         fs.writeFile('modules/MMM-voice/sentences_temp.txt', sentences);
-        this.checkFiles();
+        exec('sort -u -o modules/MMM-voice/words_temp.txt modules/MMM-voice/words_temp.txt ' +
+            '&& sort -u -o modules/MMM-voice/sentences_temp.txt modules/MMM-voice/sentences_temp.txt',
+            (error, stdout, stderr) => {
+                if(error){
+                    this.sendSocketNotification('ERROR', "Couldn't create necessary files!");
+                } else {
+                    this.checkFiles();
+                }
+            }
+        );
     },
 
     checkFiles: function(){
