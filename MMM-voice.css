@@ -11,3 +11,12 @@
 .MMM-voice .icon {
     margin-right: 5px;
 }
+
+.MMM-voice-blur {
+    -webkit-filter: blur(2px) brightness(50%);
+}
+
+.MMM-voice .help {
+    margin-right: 5px;
+    -webkit-filter: blur(0px) brightness(100%);
+}

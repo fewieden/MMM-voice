@@ -9,6 +9,7 @@ Module.register("MMM-voice",{
 
     icon: "fa-microphone-slash",
     pulsing: true,
+    help: false,
     modules: [
         {
             mode: 'voice',
@@ -17,7 +18,8 @@ Module.register("MMM-voice",{
                 'show modules',
                 'turn on',
                 'turn off',
-                'help'
+                'open help',
+                'close help'
             ]
         }
     ],
@@ -25,7 +27,7 @@ Module.register("MMM-voice",{
     defaults: {
         timeout: 15,
         keyword: "magic mirror",
-        debug: false,
+        debug: false
     },
 
     start: function(){
@@ -61,6 +63,11 @@ Module.register("MMM-voice",{
             var debug = document.createElement("div");
             debug.innerHTML = this.debugInformation;
             wrapper.appendChild(debug);
+        }
+        if(this.help){
+            document.querySelector('body').classList.add('MMM-voice-blur');
+        } else {
+            document.querySelector('body').classList.remove('MMM-voice-blur');
         }
         return wrapper;
     },
@@ -110,6 +117,12 @@ Module.register("MMM-voice",{
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
+        } else if(notification === 'RENDER_HELP'){
+            this.help = true;
+            this.updateDom(300);
+        } else if(notification === 'REMOVE_HELP'){
+            this.help = false;
+            this.updateDom(300);
         } else if(notification === 'DEBUG'){
             this.debugInformation = payload;
             this.updateDom();

@@ -16,6 +16,7 @@ module.exports = NodeHelper.create({
     listening: false,
     mode: false,
     hdmi: true,
+    help: false,
 
     socketNotificationReceived: function(notification, payload){
         if(notification === 'START'){
@@ -102,7 +103,7 @@ module.exports = NodeHelper.create({
         });
 
         this.ps.on('data', (data) => {
-            if(typeof data == 'string'){
+            if(typeof data === 'string'){
                 if(this.config.debug){
                     console.log(data);
                     this.sendSocketNotification('DEBUG', data);
@@ -143,7 +144,7 @@ module.exports = NodeHelper.create({
 
         if(this.config.debug){
             this.ps.on('debug', (data) => {
-                fs.appendFile('modules/MMM-voice/error.log', data);
+                fs.appendFile('modules/MMM-voice/debug.log', data);
             });
         }
 
@@ -180,7 +181,13 @@ module.exports = NodeHelper.create({
         } else if(/(show)/g.test(data)){
             this.sendSocketNotification("SHOW");
         } else if(/(help)/g.test(data)){
-
+            if(/(open)/g.test(data) || !this.help && !/(close)/g.test(data)){
+                this.sendSocketNotification("RENDER_HELP");
+                this.help = true;
+            } else if(/(close)/g.test(data) || this.help && !/(open)/g.test(data)){
+                this.sendSocketNotification("REMOVE_HELP");
+                this.help = false;
+            }
         }
     }
 });
