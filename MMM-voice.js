@@ -77,7 +77,6 @@ Module.register("MMM-voice",{
             this.sendSocketNotification("START", {config: this.config, modules: this.modules});
         } else if(notification === "REGISTER_VOICE_MODULE"){
             if(payload.hasOwnProperty("mode") && payload.hasOwnProperty("sentences")){
-                payload.module = sender;
                 this.modules.push(payload);
             }
         }
