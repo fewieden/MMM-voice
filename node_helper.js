@@ -5,10 +5,10 @@
  * MIT Licensed.
  */
 
-const Psc = require('pocketsphinx-continuous');
-const fs = require('fs');
-const exec = require('child_process').exec;
-const compare = require('file-compare').compare;
+const Psc = require("pocketsphinx-continuous");
+const fs = require("fs");
+const exec = require("child_process").exec;
+const lmtool = require("lmtool");
 const NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
@@ -17,52 +17,63 @@ module.exports = NodeHelper.create({
     mode: false,
     hdmi: true,
     help: false,
+    words: [],
 
     socketNotificationReceived: function(notification, payload){
-        if(notification === 'START'){
+        if(notification === "START"){
             this.config = payload.config;
             this.modules = payload.modules;
 
-            this.createFiles();
+            this.fillWords();
+            this.checkFiles();
         }
     },
 
-    createFiles: function(){
-        console.log('MMM-voice: creating files');
-        var words = this.config.keyword.split(' ').join('\n') + '\n';
-        var sentences = '<s> ' + this.config.keyword + ' </s>\n';
+    fillWords: function(){
+        //create array
+        var array = this.config.keyword.split(" ");
         for(var i = 0; i < this.modules.length; i++){
-            words += this.modules[i].mode + '\n';
-            sentences += '<s> ' + this.modules[i].mode + ' </s>\n';
-            for(var n = 0; n < this.modules[i].sentences.length; n++){
-                words += this.modules[i].sentences[n].split(' ').join('\n') + '\n';
-                sentences += '<s> ' + this.modules[i].sentences[n] + ' </s>\n';
+            var mode = this.modules[i].mode.split(" ");
+            for(var m = 0; m < mode.length; m++){
+                array.push(mode[m]);
             }
-        }
-        fs.writeFile('modules/MMM-voice/words_temp.txt', words);
-        fs.writeFile('modules/MMM-voice/sentences_temp.txt', sentences);
-        exec('sort -u -o modules/MMM-voice/words_temp.txt modules/MMM-voice/words_temp.txt ' +
-            '&& sort -u -o modules/MMM-voice/sentences_temp.txt modules/MMM-voice/sentences_temp.txt',
-            (error, stdout, stderr) => {
-                if(error){
-                    this.sendSocketNotification('ERROR', "Couldn't create necessary files!");
-                } else {
-                    this.checkFiles();
+            for(var n = 0; n < this.modules[i].sentences.length; n++){
+                var sentence = this.modules[i].sentences[n].split(" ");
+                for(var x = 0; x < sentence.length; x++){
+                    array.push(sentence[x]);
                 }
             }
-        );
+        }
+
+        // sort array
+        array.sort();
+
+        //filter duplicates
+        var i = 0;
+        while(i < array.length) {
+            if(array[i] === array[i+1]) {
+                array.splice(i+1,1);
+            } else {
+                i += 1;
+            }
+        }
+
+        this.words = array;
     },
 
     checkFiles: function(){
-        console.log('MMM-voice: checking files');
-        compare('modules/MMM-voice/words.txt', 'modules/MMM-voice/words_temp.txt', (result, error) => {
-            if(result){
-                compare('modules/MMM-voice/sentences.txt', 'modules/MMM-voice/sentences_temp.txt', (result, error) => {
-                    if(result){
-                        this.startPocketsphinx();
-                    } else {
-                        this.generateDicLM();
+        console.log("MMM-voice: Checking files.");
+        fs.stat("modules/MMM-voice/words.json", (err, stats) => {
+            if(!err && stats.isFile()){
+                fs.readFile("modules/MMM-voice/words.json", "utf8", (err, data) => {
+                    if(!err){
+                        var words = JSON.parse(data).words;
+                        if(this.arraysEqual(this.words, words)){
+                            this.startPocketsphinx();
+                            return;
+                        }
                     }
+                    this.generateDicLM();
                 });
             } else {
                 this.generateDicLM();
@@ -70,53 +81,76 @@ module.exports = NodeHelper.create({
         });
     },
 
+    arraysEqual: function(a, b){
+        if(! (a instanceof Array) || ! (b instanceof Array)){
+            return false;
+        }
+
+        if(a.length !== b.length){
+            return false;
+        }
+
+        for (var i = 0; i < a.length; i++) {
+            if (a[i] !== b[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
     generateDicLM: function(){
-        console.log('MMM-voice: generating .dic and .lm');
-        exec('mv modules/MMM-voice/words_temp.txt modules/MMM-voice/words.txt && mv modules/MMM-voice/sentences_temp.txt modules/MMM-voice/sentences.txt',
-            (error, stdout, stderr) => {
-            if(!error){
-                exec('g2p-seq2seq --decode modules/MMM-voice/words.txt --model modules/MMM-voice/model | tail -n +3 > modules/MMM-voice/MMM-voice.dic ' +
-                    '&& text2wfreq < modules/MMM-voice/sentences.txt | wfreq2vocab > modules/MMM-voice/MMM-voice.vocab ' +
-                    '&& text2idngram -vocab modules/MMM-voice/MMM-voice.vocab -idngram modules/MMM-voice/MMM-voice.idngram < modules/MMM-voice/sentences.txt ' +
-                    '&& idngram2lm -vocab_type 0 -idngram modules/MMM-voice/MMM-voice.idngram -vocab modules/MMM-voice/MMM-voice.vocab -arpa modules/MMM-voice/MMM-voice.lm',
-                    (error, stdout, stderr) => {
-                        if(!error){
-                            this.startPocketsphinx();
-                        } else {
-                            this.sendSocketNotification('ERROR', "Couldn't create necessary files!");
-                        }
-                    }
-                );
+        console.log("MMM-voice: Generating dictionairy and language model.");
+
+        fs.writeFile("modules/MMM-voice/words.json", JSON.stringify({words: this.words}), (err) => {
+            if (err){
+                console.log("MMM-voice: Couldn't save words.json!");
             } else {
-                this.sendSocketNotification('ERROR', "Couldn't create necessary files!");
+                console.log("MMM-voice: Saved words.json successfully.");
+            }
+        });
+
+        lmtool(this.words, (err, filename) => {
+            if(err){
+                this.sendSocketNotification("ERROR", "Couldn't create necessary files!");
+            } else {
+                fs.renameSync(filename + ".dic", "modules/MMM-voice/MMM-voice.dic");
+                fs.renameSync(filename + ".lm", "modules/MMM-voice/MMM-voice.lm");
+
+                this.startPocketsphinx();
+
+                fs.unlink(filename + ".log_pronounce");
+                fs.unlink(filename + ".sent");
+                fs.unlink(filename + ".vocab");
+                fs.unlink("TAR" + filename + ".tgz");
             }
         });
     },
 
     startPocketsphinx: function(){
-        console.log('MMM-voice: starting pocketsphinx');
+        console.log("MMM-voice: Starting pocketsphinx.");
         this.time = this.config.timeout * 1000;
         this.ps = new Psc({
-            setId: 'MMM-voice',
+            setId: "MMM-voice",
             verbose: true,
             microphone: this.config.microphone
         });
 
-        this.ps.on('data', (data) => {
-            if(typeof data === 'string'){
+        this.ps.on("data", (data) => {
+            if(typeof data === "string"){
                 if(this.config.debug){
                     console.log(data);
-                    this.sendSocketNotification('DEBUG', data);
+                    this.sendSocketNotification("DEBUG", data);
                 }
                 if(data.indexOf(this.config.keyword) !== -1 || this.listening){
                     this.listening = true;
-                    this.sendSocketNotification('LISTENING');
+                    this.sendSocketNotification("LISTENING");
                     if(this.timer){
                         clearTimeout(this.timer);
                     }
                     this.timer = setTimeout(() => {
                         this.listening = false;
-                        this.sendSocketNotification('SLEEPING');
+                        this.sendSocketNotification("SLEEPING");
                     }, this.time);
                 } else {
                     return;
@@ -134,24 +168,24 @@ module.exports = NodeHelper.create({
                 }
 
                 if(this.mode){
-                    if(this.mode === 'voice'){
+                    if(this.mode === "VOICE"){
                         this.checkCommands(data);
                     }
-                    this.sendSocketNotification('VOICE', {mode: this.mode, sentence: data});
+                    this.sendSocketNotification("VOICE", {mode: this.mode, sentence: data});
                 }
             }
         });
 
         if(this.config.debug){
-            this.ps.on('debug', (data) => {
-                fs.appendFile('modules/MMM-voice/debug.log', data);
+            this.ps.on("debug", (data) => {
+                fs.appendFile("modules/MMM-voice/debug.log", data);
             });
         }
 
-        this.ps.on('error', (error) => {
+        this.ps.on("error", (error) => {
             if(error){
-                fs.appendFile('modules/MMM-voice/error.log', error);
-                this.sendSocketNotification('ERROR', error);
+                fs.appendFile("modules/MMM-voice/error.log", error);
+                this.sendSocketNotification("ERROR", error);
             }
         });
 
@@ -163,29 +197,29 @@ module.exports = NodeHelper.create({
         if (i !== -1) {
             data = data.substr(i + this.config.keyword.length);
         }
-        data = data.replace(/  +/g, ' ').trim();
+        data = data.replace(/  +/g, " ").trim();
         return data;
     },
 
     checkCommands: function(data){
-        if(/(turn)/g.test(data)){
-            if(/(on)/g.test(data) || !this.hdmi && !/(off)/g.test(data)){
+        if(/(TURN)/g.test(data)){
+            if(/(ON)/g.test(data) || !this.hdmi && !/(OFF)/g.test(data)){
                 exec("/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7", null);
                 this.hdmi = true;
-            } else if(/(off)/g.test(data) || this.hdmi && !/(on)/g.test(data)){
+            } else if(/(OFF)/g.test(data) || this.hdmi && !/(ON)/g.test(data)){
                 exec("/opt/vc/bin/tvservice -o", null);
                 this.hdmi = false;
             }
-        } else if(/(hide)/g.test(data)){
+        } else if(/(HIDE)/g.test(data)){
             this.sendSocketNotification("HIDE");
-        } else if(/(show)/g.test(data)){
+        } else if(/(SHOW)/g.test(data)){
             this.sendSocketNotification("SHOW");
-        } else if(/(help)/g.test(data)){
-            if(/(open)/g.test(data) || !this.help && !/(close)/g.test(data)){
-                this.sendSocketNotification("RENDER_HELP");
+        } else if(/(HELP)/g.test(data)){
+            if(/(OPEN)/g.test(data) || !this.help && !/(CLOSE)/g.test(data)){
+                this.sendSocketNotification("OPEN_HELP");
                 this.help = true;
-            } else if(/(close)/g.test(data) || this.help && !/(open)/g.test(data)){
-                this.sendSocketNotification("REMOVE_HELP");
+            } else if(/(CLOSE)/g.test(data) || this.help && !/(OPEN)/g.test(data)){
+                this.sendSocketNotification("CLOSE_HELP");
                 this.help = false;
             }
         }

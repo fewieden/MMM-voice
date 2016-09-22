@@ -12,28 +12,28 @@ Module.register("MMM-voice",{
     help: false,
     modules: [
         {
-            mode: 'voice',
+            mode: "VOICE",
             sentences: [
-                'hide modules',
-                'show modules',
-                'turn on',
-                'turn off',
-                'open help',
-                'close help'
+                "HIDE MODULES",
+                "SHOW MODULES",
+                "TURN ON",
+                "TURN OFF",
+                "OPEN HELP",
+                "CLOSE HELP"
             ]
         }
     ],
 
     defaults: {
         timeout: 15,
-        keyword: "magic mirror",
+        keyword: "MAGIC MIRROR",
         debug: false
     },
 
     start: function(){
         this.mode = this.translate("INIT");
-        Log.log(this.name + ' is started!');
-        Log.info(this.name + ' is waiting for voice modules');
+        Log.log(this.name + " is started!");
+        Log.info(this.name + " is waiting for voice modules");
     },
 
     getStyles: function() {
@@ -49,11 +49,11 @@ Module.register("MMM-voice",{
 
     getDom: function() {
         var wrapper = document.createElement("div");
-        wrapper.classList.add('small', 'align-left');
+        wrapper.classList.add("small", "align-left");
         var i = document.createElement("i");
-        i.classList.add('fa', this.icon, 'icon');
+        i.classList.add("fa", this.icon, "icon");
         if(this.pulsing){
-            i.classList.add('pulse');
+            i.classList.add("pulse");
         }
         var modeSpan = document.createElement("span");
         modeSpan.innerHTML = this.mode;
@@ -65,18 +65,18 @@ Module.register("MMM-voice",{
             wrapper.appendChild(debug);
         }
         if(this.help){
-            document.querySelector('body').classList.add('MMM-voice-blur');
+            document.querySelector("body").classList.add("MMM-voice-blur");
         } else {
-            document.querySelector('body').classList.remove('MMM-voice-blur');
+            document.querySelector("body").classList.remove("MMM-voice-blur");
         }
         return wrapper;
     },
 
     notificationReceived: function(notification, payload, sender){
-        if(notification === 'DOM_OBJECTS_CREATED'){
-            this.sendSocketNotification('START', {'config': this.config, 'modules': this.modules});
-        } else if(notification === 'REGISTER_VOICE_MODULE'){
-            if(payload.hasOwnProperty('mode') && payload.hasOwnProperty('sentences')){
+        if(notification === "DOM_OBJECTS_CREATED"){
+            this.sendSocketNotification("START", {config: this.config, modules: this.modules});
+        } else if(notification === "REGISTER_VOICE_MODULE"){
+            if(payload.hasOwnProperty("mode") && payload.hasOwnProperty("sentences")){
                 payload.module = sender;
                 this.modules.push(payload);
             }
@@ -84,46 +84,46 @@ Module.register("MMM-voice",{
     },
 
     socketNotificationReceived: function(notification, payload){
-        if(notification === 'READY'){
+        if(notification === "READY"){
             this.icon = "fa-microphone";
             this.mode = this.translate("NO_MODE");
             this.pulsing = false;
             this.updateDom(300);
-        } else if(notification === 'LISTENING'){
+        } else if(notification === "LISTENING"){
             this.pulsing = true;
             this.updateDom(300);
-        } else if(notification === 'SLEEPING'){
+        } else if(notification === "SLEEPING"){
             this.pulsing = false;
             this.updateDom(300);
-        } else if(notification === 'ERROR'){
+        } else if(notification === "ERROR"){
             this.mode = notification;
             this.updateDom(300);
-        } else if(notification === 'VOICE'){
+        } else if(notification === "VOICE"){
             for(var i = 0; i < this.modules.length; i++){
                 if(payload.mode === this.modules[i].mode){
                     this.mode = payload.mode;
-                    if(this.mode !== 'voice'){
+                    if(this.mode !== "VOICE"){
                         this.sendNotification(notification + '_' + payload.mode, payload.sentence);
                     }
                     this.updateDom(300);
                     return;
                 }
             }
-        } else if(notification === 'HIDE'){
+        } else if(notification === "HIDE"){
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
-        } else if(notification === 'SHOW'){
+        } else if(notification === "SHOW"){
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
-        } else if(notification === 'RENDER_HELP'){
+        } else if(notification === "OPEN_HELP"){
             this.help = true;
             this.updateDom(300);
-        } else if(notification === 'REMOVE_HELP'){
+        } else if(notification === "CLOSE_HELP"){
             this.help = false;
             this.updateDom(300);
-        } else if(notification === 'DEBUG'){
+        } else if(notification === "DEBUG"){
             this.debugInformation = payload;
             this.updateDom();
         }
