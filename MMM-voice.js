@@ -23,9 +23,7 @@ Module.register("MMM-voice",{
         ]
     },
 
-    modules: [
-        this.voice
-    ],
+    modules: [],
 
     defaults: {
         timeout: 15,
@@ -35,6 +33,7 @@ Module.register("MMM-voice",{
 
     start: function(){
         this.mode = this.translate("INIT");
+        this.modules.push(this.voice);
         Log.log(this.name + " is started!");
         Log.info(this.name + " is waiting for voice modules");
     },
