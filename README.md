@@ -8,13 +8,10 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
   * Packages: bison libasound2-dev autoconf automake libtool python-dev swig python-pip
   * [SphinxBase](https://github.com/cmusphinx/sphinxbase)
   * [PocketSphinx](https://github.com/cmusphinx/pocketsphinx)
-  * [cmuclmtk-0.7](https://sourceforge.net/projects/cmusphinx/files/cmuclmtk/0.7/)
-  * [TensorFlow](https://github.com/samjabrahams/tensorflow-on-raspberry-pi)
-  * [g2p-seq2seq](https://github.com/cmusphinx/g2p-seq2seq)
   * A microphone
   * npm
   * [PocketSphinx-continuous](https://www.npmjs.com/package/pocketsphinx-continuous)
-  * [File-Compare](https://www.npmjs.com/package/file-compare)
+  * [lmtool](https://www.npmjs.com/package/lmtool)
 
 ## Installation
  1. Clone this repo into `~/MagicMirror/modules` directory.
@@ -36,8 +33,5 @@ Voice Recognition Module for MagicMirror<sup>2</sup>
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
-| `keyword` | `'magic mirror'` | Keyword the mirror starts to listen. |
+| `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. IMPORTANT: Only UPPERCASE Letters |
 | `timeout` | `15` | time the keyword should be active without saying something |
-
-## Custom Dictionairy
-Go to [Sphinx Knowledge Base Tool](http://www.speech.cs.cmu.edu/tools/lmtool-new.html) and create your own
