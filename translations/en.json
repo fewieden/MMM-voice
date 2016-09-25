@@ -1,4 +1,7 @@
 {
   "INIT": "Initialising...",
-  "NO_MODE": "No mode detected."
+  "NO_MODE": "No mode detected.",
+  "COMMAND_LIST": "List of all Voice Commands",
+  "MODE": "Mode",
+  "VOICE_COMMANDS": "Voice Commands"
 }
