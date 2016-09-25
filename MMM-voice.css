@@ -16,7 +16,14 @@
     -webkit-filter: blur(2px) brightness(50%);
 }
 
-.MMM-voice .help {
-    margin-right: 5px;
-    -webkit-filter: blur(0px) brightness(100%);
+.MMM-voice .modal {
+    position: fixed;
+    text-align: left;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+}
+
+.MMM-voice .modal ul {
+    margin: 0px;
 }

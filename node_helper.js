@@ -168,10 +168,10 @@ module.exports = NodeHelper.create({
                 }
 
                 if(this.mode){
+                    this.sendSocketNotification("VOICE", {mode: this.mode, sentence: data});
                     if(this.mode === "VOICE"){
                         this.checkCommands(data);
                     }
-                    this.sendSocketNotification("VOICE", {mode: this.mode, sentence: data});
                 }
             }
         });
