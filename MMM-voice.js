@@ -127,7 +127,7 @@ Module.register("MMM-voice",{
                     break;
                 }
             }
-        } else if(notification === "HIDE"){
+        } else if(notification === "BYTES"){
             this.sendNotification("MMM-TTS", payload);
         } else if(notification === "HIDE"){
             MM.getModules().enumerate((module) => {
