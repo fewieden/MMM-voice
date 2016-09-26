@@ -9,6 +9,7 @@ const Psc = require("pocketsphinx-continuous");
 const fs = require("fs");
 const exec = require("child_process").exec;
 const lmtool = require("lmtool");
+const bytes = require("./Bytes.js");
 const NodeHelper = require("node_helper");
 
 module.exports = NodeHelper.create({
@@ -32,6 +33,10 @@ module.exports = NodeHelper.create({
     fillWords: function(){
         //create array
         var array = this.config.keyword.split(" ");
+        var temp = bytes.q.split(" ");
+        for(var i = 0; i < temp.length; i++){
+            array.push(temp[i]);
+        }
         for(var i = 0; i < this.modules.length; i++){
             var mode = this.modules[i].mode.split(" ");
             for(var m = 0; m < mode.length; m++){
@@ -202,7 +207,9 @@ module.exports = NodeHelper.create({
     },
 
     checkCommands: function(data){
-        if(/(TURN)/g.test(data)){
+        if(bytes.r[0].test(data) && bytes.r[1].test(data)){
+            this.sendSocketNotification("BYTES", bytes.a);
+        } else if(/(TURN)/g.test(data)){
             if(/(ON)/g.test(data) || !this.hdmi && !/(OFF)/g.test(data)){
                 exec("/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7", null);
                 this.hdmi = true;
