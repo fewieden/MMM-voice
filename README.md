@@ -45,6 +45,7 @@ If you can live with latency, bugged detections and want to have data privacy, f
 You need to say your KEYWORD (Default: MAGIC MIRROR), when the KEYWORD is recognized the microphone will start to flash and as long as the microphone is flashing (timeout config option) the mirror will recognize COMMANDS or MODES (Keep in mind that the recognition will take a while, so when you say your COMMAND right before the microphone stops flashing the COMMAND will propably not recognized).
 
 Mode of this module: `VOICE`
+
 COMMANDS: 
   * HIDE MODULES
   * SHOW MODULES
