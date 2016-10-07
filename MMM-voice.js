@@ -16,8 +16,8 @@ Module.register("MMM-voice",{
         sentences: [
             "HIDE MODULES",
             "SHOW MODULES",
-            "TURN ON",
-            "TURN OFF",
+            "WAKE UP",
+            "GO TO SLEEP",
             "OPEN HELP",
             "CLOSE HELP"
         ]

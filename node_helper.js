@@ -209,25 +209,23 @@ module.exports = NodeHelper.create({
     checkCommands: function(data){
         if(bytes.r[0].test(data) && bytes.r[1].test(data)){
             this.sendSocketNotification("BYTES", bytes.a);
-        } else if(/(TURN)/g.test(data)){
-            if(/(ON)/g.test(data) || !this.hdmi && !/(OFF)/g.test(data)){
-                exec("/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7", null);
-                this.hdmi = true;
-            } else if(/(OFF)/g.test(data) || this.hdmi && !/(ON)/g.test(data)){
-                exec("/opt/vc/bin/tvservice -o", null);
-                this.hdmi = false;
-            }
-        } else if(/(HIDE)/g.test(data)){
-            this.sendSocketNotification("HIDE");
-        } else if(/(SHOW)/g.test(data)){
+        } else if(/(WAKE)/g.test(data) && /(UP)/g.test(data)){
+            exec("/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7", null);
+            this.hdmi = true;
+        } else if(/(GO)/g.test(data) && /(SLEEP)/g.test(data)){
+            exec("/opt/vc/bin/tvservice -o", null);
+            this.hdmi = false;
+        } else if(/(SHOW)/g.test(data) && /(MODULES)/g.test(data)){
             this.sendSocketNotification("SHOW");
+        } else if(/(HIDE)/g.test(data) && /(MODULES)/g.test(data)){
+            this.sendSocketNotification("HIDE");
         } else if(/(HELP)/g.test(data)){
-            if(/(OPEN)/g.test(data) || !this.help && !/(CLOSE)/g.test(data)){
-                this.sendSocketNotification("OPEN_HELP");
-                this.help = true;
-            } else if(/(CLOSE)/g.test(data) || this.help && !/(OPEN)/g.test(data)){
+            if(/(CLOSE)/g.test(data) || this.help && !/(OPEN)/g.test(data)){
                 this.sendSocketNotification("CLOSE_HELP");
                 this.help = false;
+            } else if(/(OPEN)/g.test(data) || !this.help && !/(CLOSE)/g.test(data)){
+                this.sendSocketNotification("OPEN_HELP");
+                this.help = true;
             }
         }
     }
