@@ -45,7 +45,8 @@ Module.register("MMM-voice",{
     getTranslations: function() {
         return {
             en: "translations/en.json",
-            de: "translations/de.json"
+            de: "translations/de.json",
+            id: "translations/id.json"
         };
     },
 
