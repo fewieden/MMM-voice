@@ -2,6 +2,9 @@
   "name": "mmm-voice",
   "version": "1.0.0",
   "description": "Voice Recognition Module for MagicMirror2",
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint ."
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fewieden/MMM-voice.git"
@@ -17,6 +20,13 @@
     "url": "https://github.com/fewieden/MMM-voice/issues"
   },
   "homepage": "https://github.com/fewieden/MMM-voice#readme",
+  "devDependencies": {
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "stylelint": "^7.8.0",
+    "stylelint-config-standard": "^16.0.0"
+  },
   "dependencies": {
     "lmtool": "2.0.3",
     "pocketsphinx-continuous": "1.1.0"

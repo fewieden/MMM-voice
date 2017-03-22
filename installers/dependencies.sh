@@ -104,7 +104,7 @@ echo -e "\e[32m[STEP 4/6] Exporting paths |  Done\e[0m"
 # installing npm dependencies
 echo -e "\e[96m[STEP 5/6] Installing npm dependencies\e[90m"
 cd ~/MagicMirror/modules/MMM-voice
-if npm install ;
+if npm install --productive;
 then
     echo -e "\e[32m[STEP 5/6] Installing npm dependencies | Done\e[0m"
 else
@@ -132,5 +132,5 @@ fi
 
 
 # displaying audio devices
-echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js\n"
+echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js\n\e[0m"
 cat /proc/asound/cards
