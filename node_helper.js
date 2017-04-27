@@ -22,6 +22,11 @@ module.exports = NodeHelper.create({
     help: false,
     words: [],
 
+    start() {
+        console.log(`Starting module helper: ${this.name}`);
+        this.time = this.config.timeout * 1000;
+    },
+
     socketNotificationReceived(notification, payload) {
         if (notification === 'START') {
             this.config = payload.config;
@@ -34,38 +39,25 @@ module.exports = NodeHelper.create({
 
     fillWords() {
         // create array
-        const array = this.config.keyword.split(' ');
+        let words = this.config.keyword.split(' ');
         const temp = bytes.q.split(' ');
-        for (let i = 0; i < temp.length; i += 1) {
-            array.push(temp[i]);
-        }
+        words = words.concat(temp);
         for (let i = 0; i < this.modules.length; i += 1) {
             const mode = this.modules[i].mode.split(' ');
-            for (let m = 0; m < mode.length; m += 1) {
-                array.push(mode[m]);
-            }
+            words = words.concat(mode);
             for (let n = 0; n < this.modules[i].sentences.length; n += 1) {
                 const sentences = this.modules[i].sentences[n].split(' ');
-                for (let x = 0; x < sentences.length; x += 1) {
-                    array.push(sentences[x]);
-                }
+                words = words.concat(sentences);
             }
         }
-
-        // sort array
-        array.sort();
 
         // filter duplicates
-        let i = 0;
-        while (i < array.length) {
-            if (array[i] === array[i + 1]) {
-                array.splice(i + 1, 1);
-            } else {
-                i += 1;
-            }
-        }
+        words = words.filter((item, index, data) => data.indexOf(item) === index);
 
-        this.words = array;
+        // sort array
+        words.sort();
+
+        this.words = words;
     },
 
     checkFiles() {
@@ -136,67 +128,81 @@ module.exports = NodeHelper.create({
 
     startPocketsphinx() {
         console.log(`${this.name}: Starting pocketsphinx.`);
-        this.time = this.config.timeout * 1000;
+
         this.ps = new Psc({
             setId: this.name,
             verbose: true,
             microphone: this.config.microphone
         });
 
-        this.ps.on('data', (data) => {
-            if (typeof data === 'string') {
-                if (this.config.debug) {
-                    console.log(data);
-                    this.sendSocketNotification('DEBUG', data);
-                }
-                if (data.includes(this.config.keyword) || this.listening) {
-                    this.listening = true;
-                    this.sendSocketNotification('LISTENING');
-                    if (this.timer) {
-                        clearTimeout(this.timer);
-                    }
-                    this.timer = setTimeout(() => {
-                        this.listening = false;
-                        this.sendSocketNotification('SLEEPING');
-                    }, this.time);
-                } else {
-                    return;
-                }
-
-                let cleanData = this.cleanData(data);
-
-                for (let i = 0; i < this.modules.length; i += 1) {
-                    const n = cleanData.indexOf(this.modules[i].mode);
-                    if (n === 0) {
-                        this.mode = this.modules[i].mode;
-                        cleanData = cleanData.substr(n + this.modules[i].mode.length).trim();
-                        break;
-                    }
-                }
-
-                if (this.mode) {
-                    this.sendSocketNotification('VOICE', { mode: this.mode, sentence: cleanData });
-                    if (this.mode === 'VOICE') {
-                        this.checkCommands(cleanData);
-                    }
-                }
-            }
-        });
+        this.ps.on('data', this.handleData);
 
         if (this.config.debug) {
-            this.ps.on('debug', (data) => {
-                fs.appendFile('modules/MMM-voice/debug.log', data);
-            });
+            this.ps.on('debug', this.logDebug);
         }
 
-        this.ps.on('error', (error) => {
-            if (error) {
-                fs.appendFile('modules/MMM-voice/error.log', error);
-                this.sendSocketNotification('ERROR', error);
-            }
-        });
+        this.ps.on('error', this.logError);
 
         this.sendSocketNotification('READY');
+    },
+
+    handleData(data) {
+        if (typeof data === 'string') {
+            if (this.config.debug) {
+                console.log(`${this.name} has recognized: ${data}`);
+                this.sendSocketNotification('DEBUG', data);
+            }
+            if (data.includes(this.config.keyword) || this.listening) {
+                this.listening = true;
+                this.sendSocketNotification('LISTENING');
+                if (this.timer) {
+                    clearTimeout(this.timer);
+                }
+                this.timer = setTimeout(() => {
+                    this.listening = false;
+                    this.sendSocketNotification('SLEEPING');
+                }, this.time);
+            } else {
+                return;
+            }
+
+            let cleanData = this.cleanData(data);
+
+            for (let i = 0; i < this.modules.length; i += 1) {
+                const n = cleanData.indexOf(this.modules[i].mode);
+                if (n === 0) {
+                    this.mode = this.modules[i].mode;
+                    cleanData = cleanData.substr(n + this.modules[i].mode.length).trim();
+                    break;
+                }
+            }
+
+            if (this.mode) {
+                this.sendSocketNotification('VOICE', { mode: this.mode, sentence: cleanData });
+                if (this.mode === 'VOICE') {
+                    this.checkCommands(cleanData);
+                }
+            }
+        }
+    },
+
+    logDebug(data) {
+        fs.appendFile('modules/MMM-voice/debug.log', data, (err) => {
+            if (err) {
+                console.log(`${this.name}: Couldn't save error to log file!`);
+            }
+        });
+    },
+
+    logError(error) {
+        if (error) {
+            fs.appendFile('modules/MMM-voice/error.log', `${error}\n`, (err) => {
+                if (err) {
+                    console.log(`${this.name}: Couldn't save error to log file!`);
+                }
+                this.sendSocketNotification('ERROR', error);
+            });
+        }
     },
 
     cleanData(data) {

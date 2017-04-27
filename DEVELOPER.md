@@ -17,7 +17,7 @@ As soon as you receive the notification `ALL_MODULES_STARTED` from the core syst
 * notification: `REGISTER_VOICE_MODULE`
 * payload: Object with `mode` (string) and `sentence` (array) properties
 
-### Example
+### Example commands registration
 
 ```javascript
 notificationReceived: function (notification, payload, sender) {
@@ -42,7 +42,7 @@ When the user is in the mode of your module, you will receive the following noti
 * notification: `VOICE_YOURMODE`
 * payload: String with all detected words.
 
-### Example
+### Example commands recognition
 
 ```javascript
 notificationReceived: function (notification, payload, sender) {
@@ -70,7 +70,7 @@ When the mode of MMM-voice gets changed it will send a broadcast `VOICE_MODE_CHA
 
 This gets handy e.g. to revert your manipulations on the DOM.
 
-### Example
+### Example mode change
 
 ```javascript
 notificationReceived: function (notification, payload, sender) {
