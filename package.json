@@ -1,6 +1,6 @@
 {
   "name": "mmm-voice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Voice Recognition Module for MagicMirror2",
   "scripts": {
     "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint ."
@@ -29,6 +29,6 @@
   },
   "dependencies": {
     "lmtool": "2.0.3",
-    "pocketsphinx-continuous": "1.1.0"
+    "pocketsphinx-continuous": "git://github.com/fewieden/pocketsphinx-continuous-node.git"
   }
 }
