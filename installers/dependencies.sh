@@ -32,24 +32,24 @@ echo -e "\e[0m"
 
 
 # installing packages
-echo -e "\e[96m[STEP 1/6] Installing Packages\e[90m"
+echo -e "\e[96m[STEP 1/5] Installing Packages\e[90m"
 if sudo apt-get install bison libasound2-dev autoconf automake libtool python-dev swig python-pip -y ;
 then
-    echo -e "\e[32m[STEP 1/6] Installing Packages | Done\e[0m"
+    echo -e "\e[32m[STEP 1/5] Installing Packages | Done\e[0m"
 else
-	echo -e "\e[31m[STEP 1/6] Installing Packages | Failed\e[0m"
+	echo -e "\e[31m[STEP 1/5] Installing Packages | Failed\e[0m"
 	exit;
 fi
 
 
 # installing sphinxbase
-echo -e "\e[96m[STEP 2/6] Installing sphinxbase\e[90m"
+echo -e "\e[96m[STEP 2/5] Installing sphinxbase\e[90m"
 cd ~
 if [ ! -d "$HOME/sphinxbase" ] ;
 then
     if ! git clone https://github.com/cmusphinx/sphinxbase.git ;
     then
-        echo -e "\e[31m[STEP 2/6] Installing sphinxbase | Failed\e[0m"
+        echo -e "\e[31m[STEP 2/5] Installing sphinxbase | Failed\e[0m"
         exit;
     fi
 fi
@@ -57,7 +57,7 @@ fi
 cd sphinxbase
 if ! git pull ;
 then
-    echo -e "\e[31m[STEP 2/6] Installing sphinxbase | Failed\e[0m"
+    echo -e "\e[31m[STEP 2/5] Installing sphinxbase | Failed\e[0m"
     exit;
 fi
 
@@ -65,17 +65,17 @@ fi
 ./configure --enable-fixed
 make
 sudo make install
-echo -e "\e[32m[STEP 2/6] Installing sphinxbase | Done\e[0m"
+echo -e "\e[32m[STEP 2/5] Installing sphinxbase | Done\e[0m"
 
 
 # installing pocketsphinx
-echo -e "\e[96m[STEP 3/6] Installing pocketsphinx\e[90m"
+echo -e "\e[96m[STEP 3/5] Installing pocketsphinx\e[90m"
 cd ~
 if [ ! -d "$HOME/pocketsphinx" ] ;
 then
     if ! git clone https://github.com/cmusphinx/pocketsphinx.git ;
     then
-        echo -e "\e[31m[STEP 3/6] Installing pocketsphinx | Failed\e[0m"
+        echo -e "\e[31m[STEP 3/5] Installing pocketsphinx | Failed\e[0m"
         exit;
     fi
 fi
@@ -83,7 +83,7 @@ fi
 cd pocketsphinx
 if ! git pull ;
 then
-    echo -e "\e[31m[STEP 3/6] Installing pocketsphinx | Failed\e[0m"
+    echo -e "\e[31m[STEP 3/5] Installing pocketsphinx | Failed\e[0m"
     exit;
 fi
 
@@ -91,46 +91,28 @@ fi
 ./configure
 make
 sudo make install
-echo -e "\e[32m[STEP 3/6] Installing pocketsphinx | Done\e[0m"
+echo -e "\e[32m[STEP 3/5] Installing pocketsphinx | Done\e[0m"
 
 
 # exporting paths
-echo -e "\e[96m[STEP 4/6] Exporting paths\e[0m"
+echo -e "\e[96m[STEP 4/5] Exporting paths\e[0m"
 echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> ~/.bashrc
 echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig" >> ~/.bashrc
-echo -e "\e[32m[STEP 4/6] Exporting paths |  Done\e[0m"
+echo -e "\e[32m[STEP 4/5] Exporting paths |  Done\e[0m"
 
 
 # installing npm dependencies
-echo -e "\e[96m[STEP 5/6] Installing npm dependencies\e[90m"
+echo -e "\e[96m[STEP 5/5] Installing npm dependencies\e[90m"
 cd ~/MagicMirror/modules/MMM-voice
-if npm install ;
+if npm install --productive;
 then
-    echo -e "\e[32m[STEP 5/6] Installing npm dependencies | Done\e[0m"
+    echo -e "\e[32m[STEP 5/5] Installing npm dependencies | Done\e[0m"
 else
-    echo -e "\e[31m[STEP 5/6] Installing npm dependencies | Failed\e[0m"
-    exit;
-fi
-
-
-# manipulating dependencies
-echo -e "\e[96m[STEP 6/6] Manipulating dependencies\e[90m"
-cd ~/MagicMirror/modules/MMM-voice/node_modules/pocketsphinx-continuous
-if sed \
--e "/this.verbose = config.verbose;/ a\ this.microphone = config.microphone;" \
--e "/-inmic/ i\ '-adcdev'," \
--e "/-inmic/ i\ 'plughw:' \+ this.microphone," \
--e "/-lm/ a\ 'modules/MMM-voice/' \+" \
--e "/-dict/ a\ 'modules/MMM-voice/' \+" \
-index.js -i;
-then
-    echo -e "\e[32m[STEP 6/6] Manipulating dependencies | Done\e[0m"
-else
-    echo -e "\e[31m[STEP 6/6] Manipulating dependencies | Failed\e[0m"
+    echo -e "\e[31m[STEP 5/5] Installing npm dependencies | Failed\e[0m"
     exit;
 fi
 
 
 # displaying audio devices
-echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js\n"
+echo -e "\e[96m[INFO] Possible Audio Devices to set in config.js\n\e[0m"
 cat /proc/asound/cards
