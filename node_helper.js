@@ -1,35 +1,100 @@
-/* Magic Mirror
- * Module: MMM-voice
+/**
+ * @file node_helper.js
  *
- * By fewieden https://github.com/fewieden/MMM-voice
- * MIT Licensed.
+ * @author fewieden
+ * @license MIT
+ *
+ * @see  https://github.com/fewieden/MMM-voice
  */
 
-/* eslint-env node */
-
+/**
+ * @external pocketsphinx-continuous
+ * @see https://github.com/fewieden/pocketsphinx-continuous-node
+ */
 const Psc = require('pocketsphinx-continuous');
+
+/**
+ * @external fs
+ * @see https://nodejs.org/api/fs.html
+ */
 const fs = require('fs');
+
+/**
+ * @external child_process
+ * @see https://nodejs.org/api/child_process.html
+ */
 const exec = require('child_process').exec;
+
+/**
+ * @external lmtool
+ * @see https://www.npmjs.com/package/lmtool
+ */
 const lmtool = require('lmtool');
+
+/**
+ * @module Bytes
+ * @description Pure Magic
+ */
 const bytes = require('./Bytes.js');
+
+/**
+ * @external node_helper
+ * @see https://github.com/MichMich/MagicMirror/blob/master/modules/node_modules/node_helper/index.js
+ */
 const NodeHelper = require('node_helper');
 
+/**
+ * @module node_helper
+ * @description Backend for the module to query data from the API providers.
+ *
+ * @requires external:pocketsphinx-continuous
+ * @requires external:fs
+ * @requires external:child_process
+ * @requires external:lmtool
+ * @requires Bytes
+ * @requires external:node_helper
+ */
 module.exports = NodeHelper.create({
 
+    /** @member {boolean} listening - Flag to indicate listen state. */
     listening: false,
+
+    /** @member {(boolean|string)} mode - Contains active module mode. */
     mode: false,
+
+    /** @member {boolean} hdmi - Flag to indicate hdmi output state. */
     hdmi: true,
+
+    /** @member {boolean} help - Flag to toggle help modal. */
     help: false,
+
+    /** @member {string[]} words - List of all words that are registered by the modules. */
     words: [],
 
+    /**
+     * @function start
+     * @description Logs a start message to the console.
+     * @override
+     */
     start() {
         console.log(`Starting module helper: ${this.name}`);
-        this.time = this.config.timeout * 1000;
     },
 
+    /**
+     * @function socketNotificationReceived
+     * @description Receives socket notifications from the module.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     socketNotificationReceived(notification, payload) {
         if (notification === 'START') {
+            /** @member {Object} config - Module config. */
             this.config = payload.config;
+            /** @member {number} time - Time to listen after keyword. */
+            this.time = this.config.timeout * 1000;
+            /** @member {Object} modules - List of modules with their modes and commands. */
             this.modules = payload.modules;
 
             this.fillWords();
@@ -37,6 +102,11 @@ module.exports = NodeHelper.create({
         }
     },
 
+    /**
+     * @function fillwords
+     * @description Sets {@link node_helper.words} with all needed words for the registered
+     * commands by the modules. This list has unique items and is sorted by alphabet.
+     */
     fillWords() {
         // create array
         let words = this.config.keyword.split(' ');
@@ -60,6 +130,10 @@ module.exports = NodeHelper.create({
         this.words = words;
     },
 
+    /**
+     * @function checkFiles
+     * @description Checks if words.json exists or has different entries as this.word.
+     */
     checkFiles() {
         console.log(`${this.name}: Checking files.`);
         fs.stat('modules/MMM-voice/words.json', (error, stats) => {
@@ -80,6 +154,14 @@ module.exports = NodeHelper.create({
         });
     },
 
+    /**
+     * @function arraysEqual
+     * @description Compares two arrays.
+     *
+     * @param {string[]} a - First array
+     * @param {string[]} b - Second array
+     * @returns {boolean} Are the arrays equal or not.
+     */
     arraysEqual(a, b) {
         if (!(a instanceof Array) || !(b instanceof Array)) {
             return false;
@@ -98,6 +180,10 @@ module.exports = NodeHelper.create({
         return true;
     },
 
+    /**
+     * @function generateDicLM
+     * @description Generates new Dictionairy and Language Model.
+     */
     generateDicLM() {
         console.log(`${this.name}: Generating dictionairy and language model.`);
 
@@ -126,6 +212,10 @@ module.exports = NodeHelper.create({
         });
     },
 
+    /**
+     * @function startPocketsphinx
+     * @description Starts Pocketsphinx binary.
+     */
     startPocketsphinx() {
         console.log(`${this.name}: Starting pocketsphinx.`);
 
@@ -146,6 +236,12 @@ module.exports = NodeHelper.create({
         this.sendSocketNotification('READY');
     },
 
+    /**
+     * @function handleData
+     * @description Helper method to handle recognized data.
+     *
+     * @param {string} data - Recognized data
+     */
     handleData(data) {
         if (typeof data === 'string') {
             if (this.config.debug) {
@@ -186,6 +282,12 @@ module.exports = NodeHelper.create({
         }
     },
 
+    /**
+     * @function logDebug
+     * @description Logs debug information into debug log file.
+     *
+     * @param {string} data - Debug information
+     */
     logDebug(data) {
         fs.appendFile('modules/MMM-voice/debug.log', data, (err) => {
             if (err) {
@@ -194,6 +296,12 @@ module.exports = NodeHelper.create({
         });
     },
 
+    /**
+     * @function logError
+     * @description Logs error information into error log file.
+     *
+     * @param {string} data - Error information
+     */
     logError(error) {
         if (error) {
             fs.appendFile('modules/MMM-voice/error.log', `${error}\n`, (err) => {
@@ -205,6 +313,13 @@ module.exports = NodeHelper.create({
         }
     },
 
+    /**
+     * @function cleanData
+     * @description Removes prefix/keyword and multiple spaces.
+     *
+     * @param {string} data - Recognized data to clean.
+     * @returns {string} Cleaned data
+     */
     cleanData(data) {
         let temp = data;
         const i = temp.indexOf(this.config.keyword);
@@ -215,6 +330,11 @@ module.exports = NodeHelper.create({
         return temp;
     },
 
+    /**
+     * @function checkCommands
+     * @description Checks for commands of voice module
+     * @param {string} data - Recognized data
+     */
     checkCommands(data) {
         if (bytes.r[0].test(data) && bytes.r[1].test(data)) {
             this.sendSocketNotification('BYTES', bytes.a);

@@ -1,18 +1,51 @@
-/* Magic Mirror
- * Module: MMM-voice
+/**
+ * @file MMM-voice.js
  *
- * By fewieden https://github.com/fewieden/MMM-voice
- * MIT Licensed.
+ * @author fewieden
+ * @license MIT
+ *
+ * @see  https://github.com/fewieden/MMM-voice
  */
 
 /* global Module Log MM */
 
+/**
+ * @external Module
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/module.js
+ */
+
+/**
+ * @external Log
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/logger.js
+ */
+
+/**
+ * @external MM
+ * @see https://github.com/MichMich/MagicMirror/blob/master/js/main.js
+ */
+
+/**
+ * @module MMM-voice
+ * @description Frontend for the module to display data.
+ *
+ * @requires external:Module
+ * @requires external:Log
+ * @requires external:MM
+ */
 Module.register('MMM-voice', {
 
+    /** @member {string} icon - Microphone icon. */
     icon: 'fa-microphone-slash',
+    /** @member {boolean} pulsing - Flag to indicate listening state. */
     pulsing: true,
+    /** @member {boolean} help - Flag to switch between render help or not. */
     help: false,
 
+    /**
+     * @member {Object} voice - Defines the default mode and commands of this module.
+     * @property {string} mode - Voice mode of this module.
+     * @property {string[]} sentences - List of voice commands of this module.
+     */
     voice: {
         mode: 'VOICE',
         sentences: [
@@ -25,14 +58,26 @@ Module.register('MMM-voice', {
         ]
     },
 
+    /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
 
+    /**
+     * @member {Object} defaults - Defines the default config values.
+     * @property {int} timeout - Seconds to active listen for commands.
+     * @property {string} keyword - Keyword to activate active listening.
+     * @property {boolean} debug - Flag to enable debug information.
+     */
     defaults: {
         timeout: 15,
         keyword: 'MAGIC MIRROR',
         debug: false
     },
 
+    /**
+     * @function start
+     * @description Sets mode to initialising.
+     * @override
+     */
     start() {
         Log.info(`Starting module: ${this.name}`);
         this.mode = this.translate('INIT');
@@ -40,10 +85,24 @@ Module.register('MMM-voice', {
         Log.info(`${this.name} is waiting for voice command registrations.`);
     },
 
+    /**
+     * @function getStyles
+     * @description Style dependencies for this module.
+     * @override
+     *
+     * @returns {string[]} List of the style dependency filepaths.
+     */
     getStyles() {
         return ['font-awesome.css', 'MMM-voice.css'];
     },
 
+    /**
+     * @function getTranslations
+     * @description Translations for this module.
+     * @override
+     *
+     * @returns {Object.<string, string>} Available translations for this module (key: language code, value: filepath).
+     */
     getTranslations() {
         return {
             en: 'translations/en.json',
@@ -52,6 +111,13 @@ Module.register('MMM-voice', {
         };
     },
 
+    /**
+     * @function getDom
+     * @description Creates the UI as DOM for displaying in MagicMirror application.
+     * @override
+     *
+     * @returns {Element}
+     */
     getDom() {
         const wrapper = document.createElement('div');
         const voice = document.createElement('div');
@@ -97,6 +163,14 @@ Module.register('MMM-voice', {
         return wrapper;
     },
 
+    /**
+     * @function notificationReceived
+     * @description Handles incoming broadcasts from other modules or the MagicMirror core.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     notificationReceived(notification, payload) {
         if (notification === 'DOM_OBJECTS_CREATED') {
             this.sendSocketNotification('START', { config: this.config, modules: this.modules });
@@ -107,6 +181,14 @@ Module.register('MMM-voice', {
         }
     },
 
+    /**
+     * @function socketNotificationReceived
+     * @description Handles incoming messages from node_helper.
+     * @override
+     *
+     * @param {string} notification - Notification name
+     * @param {*} payload - Detailed payload of the notification.
+     */
     socketNotificationReceived(notification, payload) {
         if (notification === 'READY') {
             this.icon = 'fa-microphone';
@@ -152,6 +234,12 @@ Module.register('MMM-voice', {
         this.updateDom(300);
     },
 
+    /**
+     * @function appendHelp
+     * @description Creates the UI for the voice command SHOW HELP.
+     *
+     * @param {Element} appendTo - DOM Element where the UI gets appended as child.
+     */
     appendHelp(appendTo) {
         const title = document.createElement('h1');
         title.classList.add('medium');

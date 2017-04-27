@@ -3,7 +3,8 @@
   "version": "1.0.1",
   "description": "Voice Recognition Module for MagicMirror2",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint ."
+    "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint .",
+    "docs": "./node_modules/.bin/jsdoc -c jsdoc.json ."
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "eslint": "^3.14.1",
     "eslint-config-airbnb-base": "^11.0.1",
     "eslint-plugin-import": "^2.2.0",
+    "jsdoc": "^3.4.3",
     "stylelint": "^7.8.0",
     "stylelint-config-standard": "^16.0.0"
   },

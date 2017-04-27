@@ -1,0 +1,19 @@
+{
+  "tags": {
+    "dictionaries": ["jsdoc"]
+  },
+  "source": {
+    "include": [
+      "package.json",
+      "README.md"
+    ],
+    "exclude": [
+      "node_modules",
+      "Bytes.js"
+    ]
+  },
+  "opts": {
+    "destination": "docs",
+    "recurse": true
+  }
+}

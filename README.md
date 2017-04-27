@@ -1,4 +1,4 @@
-# MMM-voice  [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-voice/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-voice.svg?branch=master)](https://travis-ci.org/fewieden/MMM-voice) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-voice/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-voice) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-voice/badge.svg)](https://snyk.io/test/github/fewieden/mmm-voice)
+# MMM-voice  [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-voice/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-voice.svg?branch=master)](https://travis-ci.org/fewieden/MMM-voice) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-voice/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-voice) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-voice/badge.svg)](https://snyk.io/test/github/fewieden/mmm-voice) [![API Doc](https://doclets.io/fewieden/MMM-voice/master.svg)](https://doclets.io/fewieden/MMM-voice/master)
 
 Voice Recognition Module for MagicMirror<sup>2</sup>
 
@@ -69,6 +69,15 @@ To select a MODE, the specfic MODE has to be the first word of a COMMAND or righ
 
 List of all supported modules in the [Wiki](https://github.com/fewieden/MMM-voice/wiki/Supported-Modules).
 
-## Developers Guide
+## Developer
 
-If you want to support your own module, check out the [Documentation](https://github.com/fewieden/MMM-voice/blob/master/DEVELOPER.md) and add it to the [Wiki](https://github.com/fewieden/MMM-voice/wiki/Supported-Modules).
+* `npm run lint` - Lints JS and CSS files.
+* `npm run docs` - Generates documentation.
+
+### Documentation
+
+The documentation can be found [here](https://doclets.io/fewieden/MMM-voice/master)
+
+### Developers Guide
+
+If you want to support your own module, check out the [Guide](DEVELOPER.md) and add it to the [Wiki](https://github.com/fewieden/MMM-voice/wiki/Supported-Modules).
