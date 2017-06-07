@@ -204,13 +204,19 @@ module.exports = NodeHelper.create({
 
                 this.startPocketsphinx();
 
-                fs.unlink(`${filename}.log_pronounce`);
-                fs.unlink(`${filename}.sent`);
-                fs.unlink(`${filename}.vocab`);
-                fs.unlink(`TAR${filename}.tgz`);
+                fs.unlink(`${filename}.log_pronounce`, this.noOp);
+                fs.unlink(`${filename}.sent`, this.noOp);
+                fs.unlink(`${filename}.vocab`, this.noOp);
+                fs.unlink(`TAR${filename}.tgz`, this.noOp);
             }
         });
     },
+
+    /**
+     * @function noOp
+     * @description Performs no operation.
+     */
+    noOp() {},
 
     /**
      * @function startPocketsphinx
@@ -225,13 +231,13 @@ module.exports = NodeHelper.create({
             microphone: this.config.microphone
         });
 
-        this.ps.on('data', this.handleData);
+        this.ps.on('data', this.handleData.bind(this));
 
         if (this.config.debug) {
-            this.ps.on('debug', this.logDebug);
+            this.ps.on('debug', this.logDebug.bind(this));
         }
 
-        this.ps.on('error', this.logError);
+        this.ps.on('error', this.logError.bind(this));
 
         this.sendSocketNotification('READY');
     },
