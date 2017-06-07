@@ -1,6 +1,6 @@
 {
   "name": "mmm-voice",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Voice Recognition Module for MagicMirror2",
   "scripts": {
     "lint": "./node_modules/.bin/eslint . && ./node_modules/.bin/stylelint .",
