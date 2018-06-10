@@ -60,7 +60,8 @@ Module.register('MMM-voice', {
 
     /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
-
+    /** @member - keep list of modules already hidden when sleep occurs */
+    previously_hidden: [],
     /**
      * @member {Object} defaults - Defines the default config values.
      * @property {int} timeout - Seconds to active listen for commands.
@@ -70,7 +71,9 @@ Module.register('MMM-voice', {
     defaults: {
         timeout: 15,
         keyword: 'MAGIC MIRROR',
-        debug: false
+        debug: false,
+        mode: 'pi',
+        startHidden:  true,
     },
 
     /**
@@ -220,10 +223,51 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
+            // tell other modules all hidden
+            this.sendNotification('NOW_ASLEEP','[]')
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
+            // tell other modules all shown
+            this.sendNotification('NOW_AWAKE')
+				} else if (notification === 'SLEEP_HIDE') {
+						// sleep by hiding (energyStar monitors)
+            let self=this;
+            let list=[];
+            MM.getModules().enumerate((module) => {
+               // if the module is already hidden
+               if(module.hidden==true){
+                  // save it for wake up
+                  self.previously_hidden.push(module)
+                  list.push(module.name);
+               }
+               else
+                  // hide this module
+                  module.hide(1000);
+            });
+            // tell other modules
+            this.sendNotification('NOW_ASLEEP', JSON.stringify(list))
+        } else if (notification === 'SLEEP_WAKE') {
+					// wake by unhiding (energyStar monitors)
+          let self=this;
+          MM.getModules().enumerate((module) => {
+             // if this module was NOT in the previously hidden list
+             if(self.previously_hidden.indexOf(module)==-1){
+                  // show it
+                  module.show(1000);
+              }
+          });
+          // clear the list, if any
+          this.previously_hidden = [];
+          // tell other modules
+          this.sendNotification('NOW_AWAKE')
+        } else if (notification === 'HW_ASLEEP') {
+					// not hiding, but asleep, inform others
+          this.sendNotification('NOW_ASLEEP', '[]')
+					// not hiding, but awake, inform others
+        } else if (notification === 'HW_AWAKE') {
+          this.sendNotification('NOW_AWAKE')
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {
