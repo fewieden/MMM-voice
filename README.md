@@ -33,18 +33,25 @@ If you can live with latency, bugged detections and want to have data privacy, f
         position: 'bottom_bar',
         config: {
             microphone: 1,
+						mode:  see below,
             ...
+						
         }
     }
     ```
 
 ## Config Options
 
-| **Option** | **Default** | **Description** |
+| **Option** | **Default** | **Description** | |
 | --- | --- | --- |
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
 | `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. IMPORTANT: Only UPPERCASE Letters |
 | `timeout` | `15` | time the keyword should be active without saying something |
+| `mode` | OPTIONAL | |
+|        |          |'PI' |  use the tvservice command available on Raspberry pi to turn off the HDMI monitor source (default)
+|  |  | 'DPMS' |  use the exec DMPS command to turn off the monitor source (not on pi, or not hdmi)
+|  |  | 'HIDE' |  hide all module content, if display is on EnergyStar device that shows ugly 'no signal' screen for the other two choices
+| `startHidden` | true/false | whether at MagciMirror startup to hide all modules and show image, default=true | 
 
 ## Usage
 

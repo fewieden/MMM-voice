@@ -73,7 +73,6 @@ Module.register('MMM-voice', {
         keyword: 'MAGIC MIRROR',
         debug: false,
         mode: 'pi',
-        startHidden:  true,
     },
 
     /**
