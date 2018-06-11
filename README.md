@@ -51,7 +51,7 @@ If you can live with latency, bugged detections and want to have data privacy, f
 |        |          |'PI' |  use the tvservice command available on Raspberry pi to turn off the HDMI monitor source (default)
 |  |  | 'DPMS' |  use the exec DMPS command to turn off the monitor source (not on pi, or not hdmi)
 |  |  | 'HIDE' |  hide all module content, if display is on EnergyStar device that shows ugly 'no signal' screen for the other two choices
-| `startHidden` | true/false | whether at MagciMirror startup to hide all modules and show image, default=true | 
+
 
 ## Usage
 

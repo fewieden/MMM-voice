@@ -61,7 +61,7 @@ Module.register('MMM-voice', {
     /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
     /** @member - keep list of modules already hidden when sleep occurs */
-    previously_hidden: [],
+    previouslyHidden: [],
     /**
      * @member {Object} defaults - Defines the default config values.
      * @property {int} timeout - Seconds to active listen for commands.
@@ -72,7 +72,7 @@ Module.register('MMM-voice', {
         timeout: 15,
         keyword: 'MAGIC MIRROR',
         debug: false,
-        mode: 'pi',
+        standByMethod: 'PI',
     },
 
     /**
@@ -82,7 +82,7 @@ Module.register('MMM-voice', {
      */
     start() {
         Log.info(`Starting module: ${this.name}`);
-        this.mode = this.translate('INIT');
+        this.standByMethod = this.translate('INIT');
         this.modules.push(this.voice);
         Log.info(`${this.name} is waiting for voice command registrations.`);
     },
@@ -133,7 +133,7 @@ Module.register('MMM-voice', {
         voice.appendChild(icon);
 
         const modeSpan = document.createElement('span');
-        modeSpan.innerHTML = this.mode;
+        modeSpan.innerHTML = this.standByMethod;
         voice.appendChild(modeSpan);
         if (this.config.debug) {
             const debug = document.createElement('div');
@@ -194,24 +194,24 @@ Module.register('MMM-voice', {
     socketNotificationReceived(notification, payload) {
         if (notification === 'READY') {
             this.icon = 'fa-microphone';
-            this.mode = this.translate('NO_MODE');
+            this.standByMethod = this.translate('NO_MODE');
             this.pulsing = false;
         } else if (notification === 'LISTENING') {
             this.pulsing = true;
         } else if (notification === 'SLEEPING') {
             this.pulsing = false;
         } else if (notification === 'ERROR') {
-            this.mode = notification;
+            this.standByMethod = notification;
         } else if (notification === 'VOICE') {
             for (let i = 0; i < this.modules.length; i += 1) {
-                if (payload.mode === this.modules[i].mode) {
-                    if (this.mode !== payload.mode) {
+                if (payload.standByMethod === this.modules[i].standByMethod) {
+                    if (this.standByMethod !== payload.standByMethod) {
                         this.help = false;
-                        this.sendNotification(`${notification}_MODE_CHANGED`, { old: this.mode, new: payload.mode });
-                        this.mode = payload.mode;
+                        this.sendNotification(`${notification}_MODE_CHANGED`, { old: this.standByMethod, new: payload.standByMethod });
+                        this.standByMethod = payload.standByMethod;
                     }
-                    if (this.mode !== 'VOICE') {
-                        this.sendNotification(`${notification}_${payload.mode}`, payload.sentence);
+                    if (this.standByMethod !== 'VOICE') {
+                        this.sendNotification(`${notification}_${payload.standByMethod}`, payload.sentence);
                     }
                     break;
                 }
@@ -222,49 +222,46 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
-            // tell other modules all hidden
-            this.sendNotification('NOW_ASLEEP','[]')
+            this.sendNotification('NOW_ASLEEP',JSON.stringify([]))
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
             // tell other modules all shown
             this.sendNotification('NOW_AWAKE')
-				} else if (notification === 'SLEEP_HIDE') {
-						// sleep by hiding (energyStar monitors)
+        } else if (notification === 'SLEEP_HIDE') {
+            // sleep by hiding (energyStar monitors)
             let self=this;
             let list=[];
             MM.getModules().enumerate((module) => {
                // if the module is already hidden
                if(module.hidden==true){
                   // save it for wake up
-                  self.previously_hidden.push(module)
+                  self.previouslyHidden.push(module)
                   list.push(module.name);
                }
                else
                   // hide this module
                   module.hide(1000);
             });
-            // tell other modules
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list))
         } else if (notification === 'SLEEP_WAKE') {
-					// wake by unhiding (energyStar monitors)
+          // wake by unhiding (energyStar monitors)
           let self=this;
           MM.getModules().enumerate((module) => {
              // if this module was NOT in the previously hidden list
-             if(self.previously_hidden.indexOf(module)==-1){
+             if(self.previouslyHidden.indexOf(module)==-1){
                   // show it
                   module.show(1000);
               }
           });
           // clear the list, if any
-          this.previously_hidden = [];
-          // tell other modules
+          this.previouslyHidden = [];
           this.sendNotification('NOW_AWAKE')
         } else if (notification === 'HW_ASLEEP') {
-					// not hiding, but asleep, inform others
+          // not hiding, but asleep, inform others
           this.sendNotification('NOW_ASLEEP', '[]')
-					// not hiding, but awake, inform others
+          // not hiding, but awake, inform others
         } else if (notification === 'HW_AWAKE') {
           this.sendNotification('NOW_AWAKE')
         } else if (notification === 'OPEN_HELP') {
@@ -290,7 +287,7 @@ Module.register('MMM-voice', {
         appendTo.appendChild(title);
 
         const mode = document.createElement('div');
-        mode.innerHTML = `${this.translate('MODE')}: ${this.voice.mode}`;
+        mode.innerHTML = `${this.translate('MODE')}: ${this.voice.standByMethod}`;
         appendTo.appendChild(mode);
 
         const listLabel = document.createElement('div');
