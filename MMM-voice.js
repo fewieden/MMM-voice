@@ -222,7 +222,7 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
-            this.sendNotification('NOW_ASLEEP',JSON.stringify([]));
+            this.sendNotification('NOW_ASLEEP', JSON.stringify([]));
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
@@ -235,14 +235,15 @@ Module.register('MMM-voice', {
             let list=[];
             MM.getModules().enumerate((module) => {
                // if the module is already hidden
-               if(module.hidden==true){
+               if(module.hidden===true) {
                   // save it for wake up
-                  self.previouslyHidden.push(module)
+                  self.previouslyHidden.push(module);
                   list.push(module.name);
                }
-               else
+               else {
                   // hide this module
                   module.hide(1000);
+               }
             });
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
@@ -250,7 +251,7 @@ Module.register('MMM-voice', {
           let self=this;
           MM.getModules().enumerate((module) => {
              // if this module was NOT in the previously hidden list
-             if(self.previouslyHidden.indexOf(module)==-1){
+             if(self.previouslyHidden.indexOf(module)===-1) {
                   // show it
                   module.show(1000);
               }

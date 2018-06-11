@@ -362,7 +362,7 @@ module.exports = NodeHelper.create({
                 break;
             }
             // if this is one of the hardware approaches, send a different notification
-            if(this.config.standByMethod.toLowerCase()!=='hide'){}
+            if(this.config.standByMethod.toLowerCase()!=='hide') {
               // tell the module we are awake
               this.sendSocketNotification('HW_AWAKE');
             }
@@ -384,7 +384,7 @@ module.exports = NodeHelper.create({
                 break;
             }
             // if this is one of the hardware approaches, send a different notification
-            if(this.config.standByMethod.toLowerCase()!=='hide'){
+            if(this.config.standByMethod.toLowerCase()!=='hide') {
               this.sendSocketNotification('HW_ASLEEP');
             }
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
