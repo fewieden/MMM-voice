@@ -231,16 +231,15 @@ Module.register('MMM-voice', {
             this.sendNotification('NOW_AWAKE');
         } else if (notification === 'SLEEP_HIDE') {
             // sleep by hiding (energyStar monitors)
-            let self=this;
-            let list=[];
+            const self=this;
+            const list=[];
             MM.getModules().enumerate((module) => {
                // if the module is already hidden
-               if(module.hidden===true) {
+               if (module.hidden===true) {
                   // save it for wake up
                   self.previouslyHidden.push(module);
                   list.push(module.name);
-               }
-               else {
+               } else {
                   // hide this module
                   module.hide(1000);
                }
@@ -248,10 +247,10 @@ Module.register('MMM-voice', {
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
           // wake by unhiding (energyStar monitors)
-          let self=this;
+          const self=this;
           MM.getModules().enumerate((module) => {
              // if this module was NOT in the previously hidden list
-             if(self.previouslyHidden.indexOf(module)===-1) {
+             if (self.previouslyHidden.indexOf(module)===-1) {
                   // show it
                   module.show(1000);
               }
