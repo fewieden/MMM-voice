@@ -345,7 +345,7 @@ module.exports = NodeHelper.create({
         if (bytes.r[0].test(data) && bytes.r[1].test(data)) {
             this.sendSocketNotification('BYTES', bytes.a);
         } else if (/(WAKE)/g.test(data) && /(UP)/g.test(data)) {
-            switch(this.config.standByMethod.toLowerCase()){
+            switch (this.config.standByMethod.toLowerCase()){
               case 'pi':
                 exec('/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7', null);
                 this.hdmi = true;
@@ -358,13 +358,16 @@ module.exports = NodeHelper.create({
                 /////////// Turns on laptop display and desktop PC with DVI @ Mykle ///////////////
                 exec('xset dpms force on', null);
                 break;
+              default:
+                break;
             }
             // if this is one of the hardware approaches, send a different notification
-            if(this.config.standByMethod.toLowerCase()!=='hide')
+            if(this.config.standByMethod.toLowerCase()!=='hide'){}
               // tell the module we are awake
-              this.sendSocketNotification('HW_AWAKE')
+              this.sendSocketNotification('HW_AWAKE');
+            }
         } else if (/(GO)/g.test(data) && /(SLEEP)/g.test(data)) {
-            switch(this.config.standByMethod.toLowerCase()){
+            switch (this.config.standByMethod.toLowerCase()){
               case 'pi':
                 exec('/opt/vc/bin/tvservice -o', null);
                 this.hdmi = false;
@@ -377,10 +380,13 @@ module.exports = NodeHelper.create({
                 /////////// Turns off laptop display and desktop PC with DVI  @ Mykle ///////////////
                 exec('xset dpms force off', null);
                 break;
+              default:
+                break;
             }
             // if this is one of the hardware approaches, send a different notification
-            if(this.config.standByMethod.toLowerCase()!=='hide')
-              this.sendSocketNotification('HW_ASLEEP')
+            if(this.config.standByMethod.toLowerCase()!=='hide'){
+              this.sendSocketNotification('HW_ASLEEP');
+            }
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('SHOW');
         } else if (/(HIDE)/g.test(data) && /(MODULES)/g.test(data)) {

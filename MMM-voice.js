@@ -194,24 +194,24 @@ Module.register('MMM-voice', {
     socketNotificationReceived(notification, payload) {
         if (notification === 'READY') {
             this.icon = 'fa-microphone';
-            this.standByMethod = this.translate('NO_MODE');
+            this.mode = this.translate('NO_MODE');
             this.pulsing = false;
         } else if (notification === 'LISTENING') {
             this.pulsing = true;
         } else if (notification === 'SLEEPING') {
             this.pulsing = false;
         } else if (notification === 'ERROR') {
-            this.standByMethod = notification;
+            this.mode = notification;
         } else if (notification === 'VOICE') {
             for (let i = 0; i < this.modules.length; i += 1) {
-                if (payload.standByMethod === this.modules[i].standByMethod) {
-                    if (this.standByMethod !== payload.standByMethod) {
+                if (payload.mode === this.modules[i].mode) {
+                    if (this.mode !== payload.mode) {
                         this.help = false;
-                        this.sendNotification(`${notification}_MODE_CHANGED`, { old: this.standByMethod, new: payload.standByMethod });
-                        this.standByMethod = payload.standByMethod;
+                        this.sendNotification(`${notification}_MODE_CHANGED`, { old: this.mode, new: payload.mode });
+                        this.mode = payload.mode;
                     }
-                    if (this.standByMethod !== 'VOICE') {
-                        this.sendNotification(`${notification}_${payload.standByMethod}`, payload.sentence);
+                    if (this.mode !== 'VOICE') {
+                        this.sendNotification(`${notification}_${payload.mode}`, payload.sentence);
                     }
                     break;
                 }
@@ -222,13 +222,13 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
-            this.sendNotification('NOW_ASLEEP',JSON.stringify([]))
+            this.sendNotification('NOW_ASLEEP',JSON.stringify([]));
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
             // tell other modules all shown
-            this.sendNotification('NOW_AWAKE')
+            this.sendNotification('NOW_AWAKE');
         } else if (notification === 'SLEEP_HIDE') {
             // sleep by hiding (energyStar monitors)
             let self=this;
@@ -244,7 +244,7 @@ Module.register('MMM-voice', {
                   // hide this module
                   module.hide(1000);
             });
-            this.sendNotification('NOW_ASLEEP', JSON.stringify(list))
+            this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
           // wake by unhiding (energyStar monitors)
           let self=this;
@@ -257,13 +257,13 @@ Module.register('MMM-voice', {
           });
           // clear the list, if any
           this.previouslyHidden = [];
-          this.sendNotification('NOW_AWAKE')
+          this.sendNotification('NOW_AWAKE');
         } else if (notification === 'HW_ASLEEP') {
           // not hiding, but asleep, inform others
-          this.sendNotification('NOW_ASLEEP', '[]')
+          this.sendNotification('NOW_ASLEEP', '[]');
           // not hiding, but awake, inform others
         } else if (notification === 'HW_AWAKE') {
-          this.sendNotification('NOW_AWAKE')
+          this.sendNotification('NOW_AWAKE');
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {
