@@ -251,8 +251,8 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 // if this module was NOT in the previously hidden list
                 if (self.previouslyHidden.indexOf(module) === -1) {
-                   // show it
-                   module.show(1000);
+                    // show it
+                    module.show(1000);
                 }
             });
             // clear the list, if any
