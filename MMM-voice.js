@@ -244,7 +244,7 @@ Module.register('MMM-voice', {
                         module.hide(1000);
                     }
                 });
-            } 
+            }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
             if (payload.hiding === true) {
