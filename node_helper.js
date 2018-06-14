@@ -355,7 +355,7 @@ module.exports = NodeHelper.create({
                 this.sendSocketNotification('SLEEP_WAKE');
                 break;
             case 'dpms':
-                //  Turns on laptop display and desktop PC with DVI @ Mykle  
+                //  Turns on laptop display and desktop PC with DVI @ Mykle
                 exec('xset dpms force on', null);
                 break;
             default:
@@ -377,7 +377,7 @@ module.exports = NodeHelper.create({
                 this.sendSocketNotification('SLEEP_HIDE');
                 break;
             case 'dpms':
-                // Turns off laptop display and desktop PC with DVI  @ Mykle 
+                // Turns off laptop display and desktop PC with DVI  @ Mykle
                 exec('xset dpms force off', null);
                 break;
             default:
