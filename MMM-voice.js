@@ -231,39 +231,39 @@ Module.register('MMM-voice', {
             this.sendNotification('NOW_AWAKE');
         } else if (notification === 'SLEEP_HIDE') {
             // sleep by hiding (energyStar monitors)
-            const self=this;
-            const list=[];
+            const self = this;
+            const list = [];
             MM.getModules().enumerate((module) => {
                // if the module is already hidden
-               if (module.hidden===true) {
+                if (module.hidden === true) {
                   // save it for wake up
-                  self.previouslyHidden.push(module);
-                  list.push(module.name);
-               } else {
-                  // hide this module
-                  module.hide(1000);
-               }
+                   self.previouslyHidden.push(module);
+                   list.push(module.name);
+                } else {
+                   // hide this module
+                   module.hide(1000);
+                }
             });
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
           // wake by unhiding (energyStar monitors)
-          const self=this;
-          MM.getModules().enumerate((module) => {
+           const self = this;
+           MM.getModules().enumerate((module) => {
              // if this module was NOT in the previously hidden list
-             if (self.previouslyHidden.indexOf(module)===-1) {
-                  // show it
-                  module.show(1000);
+              if (self.previouslyHidden.indexOf(module) === -1) {
+                 // show it
+                 module.show(1000);
               }
           });
           // clear the list, if any
-          this.previouslyHidden = [];
-          this.sendNotification('NOW_AWAKE');
+           this.previouslyHidden = [];
+           this.sendNotification('NOW_AWAKE');
         } else if (notification === 'HW_ASLEEP') {
           // not hiding, but asleep, inform others
-          this.sendNotification('NOW_ASLEEP', '[]');
+           this.sendNotification('NOW_ASLEEP', '[]');
           // not hiding, but awake, inform others
         } else if (notification === 'HW_AWAKE') {
-          this.sendNotification('NOW_AWAKE');
+           this.sendNotification('NOW_AWAKE');
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {
