@@ -82,7 +82,7 @@ Module.register('MMM-voice', {
      */
     start() {
         Log.info(`Starting module: ${this.name}`);
-        this.standByMethod = this.translate('INIT');
+        this.mode = this.translate('INIT');
         this.modules.push(this.voice);
         Log.info(`${this.name} is waiting for voice command registrations.`);
     },
@@ -133,7 +133,7 @@ Module.register('MMM-voice', {
         voice.appendChild(icon);
 
         const modeSpan = document.createElement('span');
-        modeSpan.innerHTML = this.standByMethod;
+        modeSpan.innerHTML = this.mode;
         voice.appendChild(modeSpan);
         if (this.config.debug) {
             const debug = document.createElement('div');
@@ -227,42 +227,39 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
-            // tell other modules all shown
             this.sendNotification('NOW_AWAKE');
-        } else if (notification === 'SLEEP_HIDE') {
-            // sleep by hiding (energyStar monitors)
-            const self = this;
+        } else if (notification === 'SLEEP_START') {
             const list = [];
-            MM.getModules().enumerate((module) => {
-                 // if the module is already hidden
-                if (module.hidden === true) {
-                    // save it for wake up
-                    self.previouslyHidden.push(module);
-                    list.push(module.name);
-                } else {
-                    // hide this module
-                    module.hide(1000);
-                }
-            });
+            if (payload.hiding === true) {
+                // sleep by hiding (energyStar monitors)
+                const self = this;
+                MM.getModules().enumerate((module) => {
+                     // if the module is already hidden
+                    if (module.hidden === true) {
+                        // save it for wake up
+                        self.previouslyHidden.push(module);
+                        list.push(module.name);
+                    } else {
+                        // hide this module
+                        module.hide(1000);
+                    }
+                });
+            } 
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
-            // wake by unhiding (energyStar monitors)
-            const self = this;
-            MM.getModules().enumerate((module) => {
-                // if this module was NOT in the previously hidden list
-                if (self.previouslyHidden.indexOf(module) === -1) {
-                    // show it
-                    module.show(1000);
-                }
-            });
-            // clear the list, if any
-            this.previouslyHidden = [];
-            this.sendNotification('NOW_AWAKE');
-        } else if (notification === 'HW_ASLEEP') {
-            // not hiding, but asleep, inform others
-            this.sendNotification('NOW_ASLEEP', '[]');
-           // not hiding, but awake, inform others
-        } else if (notification === 'HW_AWAKE') {
+            if (payload.hiding === true) {
+                // wake by unhiding (energyStar monitors)
+                const self = this;
+                MM.getModules().enumerate((module) => {
+                    // if this module was NOT in the previously hidden list
+                    if (self.previouslyHidden.indexOf(module) === -1) {
+                        // show it
+                        module.show(1000);
+                    }
+                });
+                // clear the list, if any
+                this.previouslyHidden = [];
+            }
             this.sendNotification('NOW_AWAKE');
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
@@ -287,7 +284,7 @@ Module.register('MMM-voice', {
         appendTo.appendChild(title);
 
         const mode = document.createElement('div');
-        mode.innerHTML = `${this.translate('MODE')}: ${this.voice.standByMethod}`;
+        mode.innerHTML = `${this.translate('MODE')}: ${this.voice.mode}`;
         appendTo.appendChild(mode);
 
         const listLabel = document.createElement('div');

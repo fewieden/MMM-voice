@@ -345,6 +345,7 @@ module.exports = NodeHelper.create({
         if (bytes.r[0].test(data) && bytes.r[1].test(data)) {
             this.sendSocketNotification('BYTES', bytes.a);
         } else if (/(WAKE)/g.test(data) && /(UP)/g.test(data)) {
+            const status = { 'hiding': false }
             switch (this.config.standByMethod.toUpperCase()) {
             case 'PI':
                 exec('/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7', null);
@@ -352,7 +353,8 @@ module.exports = NodeHelper.create({
                 break;
             case 'HIDE':
                 // tell the module so it can unhide the others
-                this.sendSocketNotification('SLEEP_WAKE');
+                //this.sendSocketNotification('SLEEP_WAKE',{'hiding':true});
+                status.hiding = true;
                 break;
             case 'DPMS':
                 //  Turns on laptop display and desktop PC with DVI @ Mykle
@@ -361,12 +363,10 @@ module.exports = NodeHelper.create({
             default:
                 break;
             }
-            // if this is one of the hardware approaches, send a different notification
-            if (this.config.standByMethod.toUpperCase() !== 'HIDE') {
-               // tell the module we are awake
-                this.sendSocketNotification('HW_AWAKE');
-            }
+            // tell the module we are awake
+            this.sendSocketNotification('SLEEP_WAKE',status);
         } else if (/(GO)/g.test(data) && /(SLEEP)/g.test(data)) {
+            const status = { 'hiding': false }
             switch (this.config.standByMethod.toUpperCase()) {
             case 'PI':
                 exec('/opt/vc/bin/tvservice -o', null);
@@ -374,7 +374,8 @@ module.exports = NodeHelper.create({
                 break;
             case 'HIDE':
                 // tell the module so it can hide the others
-                this.sendSocketNotification('SLEEP_HIDE');
+                status.hiding = true
+                //this.sendSocketNotification('SLEEP_START.'hiding':true});
                 break;
             case 'DPMS':
                 // Turns off laptop display and desktop PC with DVI  @ Mykle
@@ -383,10 +384,7 @@ module.exports = NodeHelper.create({
             default:
                 break;
             }
-            // if this is one of the hardware approaches, send a different notification
-            if (this.config.standByMethod.toUpperCase() !== 'HIDE') {
-                this.sendSocketNotification('HW_ASLEEP');
-            }
+            this.sendSocketNotification('SLEEP_START',status);
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('SHOW');
         } else if (/(HIDE)/g.test(data) && /(MODULES)/g.test(data)) {
