@@ -373,7 +373,7 @@ module.exports = NodeHelper.create({
                 break;
             case 'HIDE':
                 // tell the module so it can hide the others
-                status.hiding = true
+                status.hiding = true;
                 break;
             case 'DPMS':
                 // Turns off laptop display and desktop PC with DVI  @ Mykle
