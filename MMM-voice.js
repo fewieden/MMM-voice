@@ -249,18 +249,18 @@ Module.register('MMM-voice', {
             // wake by unhiding (energyStar monitors)
             const self = this;
             MM.getModules().enumerate((module) => {
-               // if this module was NOT in the previously hidden list
-               if (self.previouslyHidden.indexOf(module) === -1) {
-                  // show it
-                  module.show(1000);
-               }
-           });
+                // if this module was NOT in the previously hidden list
+                if (self.previouslyHidden.indexOf(module) === -1) {
+                   // show it
+                   module.show(1000);
+                }
+            });
             // clear the list, if any
             this.previouslyHidden = [];
             this.sendNotification('NOW_AWAKE');
         } else if (notification === 'HW_ASLEEP') {
-           // not hiding, but asleep, inform others
-           this.sendNotification('NOW_ASLEEP', '[]');
+            // not hiding, but asleep, inform others
+            this.sendNotification('NOW_ASLEEP', '[]');
            // not hiding, but awake, inform others
         } else if (notification === 'HW_AWAKE') {
             this.sendNotification('NOW_AWAKE');
