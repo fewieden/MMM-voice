@@ -242,7 +242,7 @@ Module.register('MMM-voice', {
                         // hide this module
                         module.hide(1000);
                     }
-                }.bind({c:this});
+                }.bind({c:this})
             }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
@@ -254,7 +254,7 @@ Module.register('MMM-voice', {
                         // show it
                         module.show(1000);
                     }
-                }.bind({c:this});
+                }.bind({c:this})
                 // clear the list, if any
                 this.previouslyHidden = [];
             }
