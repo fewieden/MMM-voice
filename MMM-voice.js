@@ -232,31 +232,29 @@ Module.register('MMM-voice', {
             const list = [];
             if (payload.hiding === true) {
                 // sleep by hiding (energyStar monitors)
-                const self = this;
-                MM.getModules().enumerate((module) => {
+                MM.getModules().enumerate(function(module) {
                      // if the module is already hidden
                     if (module.hidden === true) {
                         // save it for wake up
-                        self.previouslyHidden.push(module);
+                        this.c.previouslyHidden.push(module);
                         list.push(module.name);
                     } else {
                         // hide this module
                         module.hide(1000);
                     }
-                });
+                }.bind({c:this});
             }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
             if (payload.hiding === true) {
                 // wake by unhiding (energyStar monitors)
-                const self = this;
-                MM.getModules().enumerate((module) => {
+                MM.getModules().enumerate(function(module) {
                     // if this module was NOT in the previously hidden list
-                    if (self.previouslyHidden.indexOf(module) === -1) {
+                    if (this.c.previouslyHidden.indexOf(module) === -1) {
                         // show it
                         module.show(1000);
                     }
-                });
+                }.bind({c:this});
                 // clear the list, if any
                 this.previouslyHidden = [];
             }
