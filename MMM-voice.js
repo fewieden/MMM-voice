@@ -244,7 +244,7 @@ Module.register('MMM-voice', {
                     }
                 }
                   .bind( {c:this} // eslint-disable-line 
-                  ) ;
+                  ) 
             }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
