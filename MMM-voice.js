@@ -232,7 +232,6 @@ Module.register('MMM-voice', {
             const list = [];
             if (payload.hiding === true) {
                 // sleep by hiding (energyStar monitors)
-                /* jshint ignore:start*/
                 MM.getModules().enumerate(function(module) {
                      // if the module is already hidden
                     if (module.hidden === true) {
@@ -243,14 +242,13 @@ Module.register('MMM-voice', {
                         // hide this module
                         module.hide(1000);
                     }
-                }.bind( {c:this} ) ;
-                /* jshint ignore:end */
+                }
+                  .bind( {c:this} // eslint-disable-line 
+                  ) ;
             }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
             if (payload.hiding === true) {
-              
-                /* jshint ignore:start*/
                 // wake by unhiding (energyStar monitors)
                 MM.getModules().enumerate(function(module) {
                     // if this module was NOT in the previously hidden list
@@ -258,8 +256,9 @@ Module.register('MMM-voice', {
                         // show it
                         module.show(1000);
                     }
-                }.bind( {c:this} ) ;
-                /* jshint ignore:end */
+                }
+                .bind( {c:this} // eslint-disable-line 
+                ) ;
                 // clear the list, if any
                 this.previouslyHidden = [];
             }
