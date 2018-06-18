@@ -233,7 +233,7 @@ Module.register('MMM-voice', {
             if (payload.hiding === true) {
                 // sleep by hiding (energyStar monitors)
                 MM.getModules().enumerate(function(module) {
-                     // if the module is already hidden
+                    // if the module is already hidden
                     if (module.hidden === true) {
                         // save it for wake up
                         this.c.previouslyHidden.push(module);
@@ -242,9 +242,8 @@ Module.register('MMM-voice', {
                         // hide this module
                         module.hide(1000);
                     }
-                  }.bind( {c:this} ) 
-                ) ;
-                  
+                }.bind( {c:this} ) 
+                ) 
             }
             this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
         } else if (notification === 'SLEEP_WAKE') {
@@ -256,8 +255,8 @@ Module.register('MMM-voice', {
                         // show it
                         module.show(1000);
                     }
-                  }.bind( {c:this} ) 
-                ) ;
+                }.bind( {c:this} ) 
+                ) 
                 // clear the list, if any
                 this.previouslyHidden = [];
             }
