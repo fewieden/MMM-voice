@@ -60,7 +60,8 @@ Module.register('MMM-voice', {
 
     /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
-
+    /** @member {string[]} previouslyHidden - keep list of module identifiers already hidden when sleep occurs */
+    previouslyHidden: [],
     /**
      * @member {Object} defaults - Defines the default config values.
      * @property {int} timeout - Seconds to active listen for commands.
@@ -70,7 +71,8 @@ Module.register('MMM-voice', {
     defaults: {
         timeout: 15,
         keyword: 'MAGIC MIRROR',
-        debug: false
+        debug: false,
+        standByMethod: 'PI',
     },
 
     /**
@@ -220,10 +222,37 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
+            this.sendNotification('STAND_BY', { status: true, modules: [] });
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
+            this.sendNotification('STAND_BY', { status: false });
+        } else if (notification === 'STAND_BY_ACTION') {
+            if (payload.type === 'show') {
+                if (payload.hardware === false) {
+                    MM.getModules().enumerate((module) => {
+                        if (this.previouslyHidden.includes(module.identifier)) {
+                            module.show(1000);
+                        }
+                    });
+                    this.previouslyHidden = [];
+                }
+
+                this.sendNotification('STAND_BY', { status: false });
+            } else if (payload.type === 'hide') {
+                if (payload.hardware === false) {
+                    MM.getModules().enumerate((module) => {
+                        if (module.hidden === true) {
+                            this.previouslyHidden.push(module.identifier);
+                        } else {
+                            module.hide(1000);
+                        }
+                    });
+                }
+
+                this.sendNotification('STAND_BY', { status: true, modules: this.previouslyHidden.slice(0) });
+            }
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {

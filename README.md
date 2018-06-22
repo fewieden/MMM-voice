@@ -33,7 +33,8 @@ If you can live with latency, bugged detections and want to have data privacy, f
         position: 'bottom_bar',
         config: {
             microphone: 1,
-            ...
+            standByMethod:  'PI',
+            ...		
         }
     }
     ```
@@ -45,6 +46,7 @@ If you can live with latency, bugged detections and want to have data privacy, f
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
 | `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. IMPORTANT: Only UPPERCASE Letters |
 | `timeout` | `15` | time the keyword should be active without saying something |
+| `standByMethod` | `'PI'` | `'PI'` uses the tvservice command available on Raspberry pi to turn off the HDMI monitor source (default). `'DPMS'` uses the exec DMPS command to turn off the monitor source (not on pi, or not hdmi). `'HIDE'` hides all module contents, if display is on EnergyStar device that shows ugly 'no signal' screen for the other two choices. |
 
 ## Usage
 
