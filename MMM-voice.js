@@ -60,7 +60,7 @@ Module.register('MMM-voice', {
 
     /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
-    /** @member {Object[]} previouslyHidden - keep list of module identifiers already hidden when sleep occurs */
+    /** @member {string[]} previouslyHidden - keep list of module identifiers already hidden when sleep occurs */
     previouslyHidden: [],
     /**
      * @member {Object} defaults - Defines the default config values.
