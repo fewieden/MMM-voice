@@ -62,9 +62,6 @@ module.exports = NodeHelper.create({
     /** @member {(boolean|string)} mode - Contains active module mode. */
     mode: false,
 
-    /** @member {boolean} hdmi - Flag to indicate hdmi output state. */
-    hdmi: true,
-
     /** @member {boolean} help - Flag to toggle help modal. */
     help: false,
 
@@ -345,44 +342,37 @@ module.exports = NodeHelper.create({
         if (bytes.r[0].test(data) && bytes.r[1].test(data)) {
             this.sendSocketNotification('BYTES', bytes.a);
         } else if (/(WAKE)/g.test(data) && /(UP)/g.test(data)) {
-            const status = { hiding: false };
+            const payload = { type: 'show', hardware: true };
             switch (this.config.standByMethod.toUpperCase()) {
             case 'PI':
                 exec('/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7', null);
-                this.hdmi = true;
                 break;
             case 'HIDE':
-                // tell the module so it can unhide the others
-                status.hiding = true;
+                payload.hardware = false;
                 break;
             case 'DPMS':
-                //  Turns on laptop display and desktop PC with DVI @ Mykle
                 exec('xset dpms force on', null);
                 break;
             default:
                 break;
             }
-            // tell the module we are awake
-            this.sendSocketNotification('SLEEP_WAKE', status);
+            this.sendSocketNotification('STAND_BY_ACTION', payload);
         } else if (/(GO)/g.test(data) && /(SLEEP)/g.test(data)) {
-            const status = { hiding: false };
+            const payload = { type: 'hide', hardware: true };
             switch (this.config.standByMethod.toUpperCase()) {
             case 'PI':
                 exec('/opt/vc/bin/tvservice -o', null);
-                this.hdmi = false;
                 break;
             case 'HIDE':
-                // tell the module so it can hide the others
-                status.hiding = true;
+                payload.hardware = false;
                 break;
             case 'DPMS':
-                // Turns off laptop display and desktop PC with DVI  @ Mykle
                 exec('xset dpms force off', null);
                 break;
             default:
                 break;
             }
-            this.sendSocketNotification('SLEEP_START', status);
+            this.sendSocketNotification('STAND_BY_ACTION', payload);
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('SHOW');
         } else if (/(HIDE)/g.test(data) && /(MODULES)/g.test(data)) {

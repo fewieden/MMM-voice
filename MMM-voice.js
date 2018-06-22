@@ -60,7 +60,7 @@ Module.register('MMM-voice', {
 
     /** @member {Object[]} modules - Set of all modules with mode and commands. */
     modules: [],
-    /** @member - keep list of modules already hidden when sleep occurs */
+    /** @member {Object[]} previouslyHidden - keep list of module identifiers already hidden when sleep occurs */
     previouslyHidden: [],
     /**
      * @member {Object} defaults - Defines the default config values.
@@ -222,45 +222,37 @@ Module.register('MMM-voice', {
             MM.getModules().enumerate((module) => {
                 module.hide(1000);
             });
-            this.sendNotification('NOW_ASLEEP', JSON.stringify([]));
+            this.sendNotification('STAND_BY', { status: true, modules: [] });
         } else if (notification === 'SHOW') {
             MM.getModules().enumerate((module) => {
                 module.show(1000);
             });
-            this.sendNotification('NOW_AWAKE');
-        } else if (notification === 'SLEEP_START') {
-            const list = [];
-            if (payload.hiding === true) {
-                // sleep by hiding (energyStar monitors)
-                MM.getModules().enumerate(function (module) {
-                    // if the module is already hidden
-                    if (module.hidden === true) {
-                        // save it for wake up
-                        this.c.previouslyHidden.push(module);
-                        list.push(module.name);
-                    } else {
-                        // hide this module
-                        module.hide(1000);
-                    }
-                }.bind({ c: this })
-                );
+            this.sendNotification('STAND_BY', { status: false });
+        } else if (notification === 'STAND_BY_ACTION') {
+            if (payload.type === 'show') {
+                if (payload.hardware === false) {
+                    MM.getModules().enumerate((module) => {
+                        if (this.previouslyHidden.includes(module.identifier)) {
+                            module.show(1000);
+                        }
+                    });
+                    this.previouslyHidden = [];
+                }
+
+                this.sendNotification('STAND_BY', { status: false });
+            } else if (payload.type === 'hide') {
+                if (payload.hardware === false) {
+                    MM.getModules().enumerate((module) => {
+                        if (module.hidden === true) {
+                            this.previouslyHidden.push(module.identifier);
+                        } else {
+                            module.hide(1000);
+                        }
+                    });
+                }
+
+                this.sendNotification('STAND_BY', { status: true, modules: this.previouslyHidden.slice(0) });
             }
-            this.sendNotification('NOW_ASLEEP', JSON.stringify(list));
-        } else if (notification === 'SLEEP_WAKE') {
-            if (payload.hiding === true) {
-                // wake by unhiding (energyStar monitors)
-                MM.getModules().enumerate(function (module) {
-                    // if this module was NOT in the previously hidden list
-                    if (this.c.previouslyHidden.indexOf(module) === -1) {
-                        // show it
-                        module.show(1000);
-                    }
-                }.bind({ c: this })
-                );
-                // clear the list, if any
-                this.previouslyHidden = [];
-            }
-            this.sendNotification('NOW_AWAKE');
         } else if (notification === 'OPEN_HELP') {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {
