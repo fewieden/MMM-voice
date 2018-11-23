@@ -54,7 +54,8 @@ Module.register('MMM-voice', {
             'WAKE UP',
             'GO TO SLEEP',
             'OPEN HELP',
-            'CLOSE HELP'
+            'CLOSE HELP',
+            'NEXT PAGE'
         ]
     },
 
@@ -228,6 +229,10 @@ Module.register('MMM-voice', {
             this.help = true;
         } else if (notification === 'CLOSE_HELP') {
             this.help = false;
+     // added for MMM-pages to show next page // 
+        } else if (notification === 'NEXT_PAGE') {
+			this.sendNotification('PAGE_INCREMENT');
+  //////////////////////////////////////////////////////
         } else if (notification === 'DEBUG') {
             this.debugInformation = payload;
         }
