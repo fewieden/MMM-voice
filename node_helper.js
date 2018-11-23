@@ -352,6 +352,8 @@ module.exports = NodeHelper.create({
             this.hdmi = false;
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('SHOW');
+        } else if (/(NEXT)/g.test(data) && /(PAGE)/g.test(data)) {
+            this.sendSocketNotification('NEXT_PAGE');
         } else if (/(HIDE)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('HIDE');
         } else if (/(HELP)/g.test(data)) {
