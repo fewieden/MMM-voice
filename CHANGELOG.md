@@ -1,5 +1,19 @@
 # MMM-voice Changelog
 
+## [2.0.0]
+
+### Changed
+
+* Updated config files
+* async/await on the node side of the module.
+* fs-extra for promised based filesystem access.
+* Documentation is now hosted on github pages instead of doclets.io (unmaintained).
+* eslint recommended instead of airbnb ruleset.
+
+### Removed
+
+* Bytes.js (easteregg)
+
 ## [1.0.2]
 
 ### Fixed

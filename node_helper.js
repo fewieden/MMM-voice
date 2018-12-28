@@ -14,10 +14,16 @@
 const Psc = require('pocketsphinx-continuous');
 
 /**
- * @external fs
- * @see https://nodejs.org/api/fs.html
+ * @external fs-extra
+ * @see https://www.npmjs.com/package/fs-extra
  */
-const fs = require('fs');
+const fs = require('fs-extra');
+
+/**
+ * @external lodash
+ * @see https://www.npmjs.com/package/lodash
+ */
+const _ = require('lodash');
 
 /**
  * @external child_process
@@ -30,12 +36,6 @@ const exec = require('child_process').exec;
  * @see https://www.npmjs.com/package/lmtool
  */
 const lmtool = require('lmtool');
-
-/**
- * @module Bytes
- * @description Pure Magic
- */
-const bytes = require('./Bytes.js');
 
 /**
  * @external node_helper
@@ -51,7 +51,6 @@ const NodeHelper = require('node_helper');
  * @requires external:fs
  * @requires external:child_process
  * @requires external:lmtool
- * @requires Bytes
  * @requires external:node_helper
  */
 module.exports = NodeHelper.create({
@@ -59,7 +58,7 @@ module.exports = NodeHelper.create({
     /** @member {boolean} listening - Flag to indicate listen state. */
     listening: false,
 
-    /** @member {(boolean|string)} mode - Contains active module mode. */
+    /** @member {boolean|string} mode - Contains active module mode. */
     mode: false,
 
     /** @member {boolean} help - Flag to toggle help modal. */
@@ -68,24 +67,38 @@ module.exports = NodeHelper.create({
     /** @member {string[]} words - List of all words that are registered by the modules. */
     words: [],
 
-    /**
-     * @function start
-     * @description Logs a start message to the console.
-     * @override
-     */
-    start() {
-        console.log(`Starting module helper: ${this.name}`);
+    /** @member {Object} standBy - Mapping of stand by methods with commands. */
+    standBy: {
+        TVSERVICE: {
+            hardware: true,
+            show: '/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7',
+            hide: '/opt/vc/bin/tvservice -o'
+        },
+        DPMS: {
+            hardware: true,
+            show: 'xset dpms force on',
+            hide: 'xset dpms force off'
+        },
+        VCGENCMD: {
+            hardware: true,
+            show: 'vcgencmd display_power 1',
+            hide: 'vcgencmd display_power 0'
+        },
+        HIDE: {
+            hardware: false
+        }
     },
 
     /**
      * @function socketNotificationReceived
      * @description Receives socket notifications from the module.
+     * @async
      * @override
      *
      * @param {string} notification - Notification name
      * @param {*} payload - Detailed payload of the notification.
      */
-    socketNotificationReceived(notification, payload) {
+    async socketNotificationReceived(notification, payload) {
         if (notification === 'START') {
             /** @member {Object} config - Module config. */
             this.config = payload.config;
@@ -95,7 +108,7 @@ module.exports = NodeHelper.create({
             this.modules = payload.modules;
 
             this.fillWords();
-            this.checkFiles();
+            await this.checkFiles();
         }
     },
 
@@ -105,115 +118,66 @@ module.exports = NodeHelper.create({
      * commands by the modules. This list has unique items and is sorted by alphabet.
      */
     fillWords() {
-        // create array
-        let words = this.config.keyword.split(' ');
-        const temp = bytes.q.split(' ');
-        words = words.concat(temp);
-        for (let i = 0; i < this.modules.length; i += 1) {
-            const mode = this.modules[i].mode.split(' ');
-            words = words.concat(mode);
-            for (let n = 0; n < this.modules[i].sentences.length; n += 1) {
-                const sentences = this.modules[i].sentences[n].split(' ');
-                words = words.concat(sentences);
+        let allWords = _.split(this.config.keyword, ' ');
+
+        for (const module of this.modules) {
+            const mode = _.split(module.mode, ' ');
+            allWords = _.concat(allWords, mode);
+            for (const sentence of module.sentences) {
+                const words = _.split(sentence, ' ');
+                allWords = _.concat(allWords, words);
             }
         }
 
-        // filter duplicates
-        words = words.filter((item, index, data) => data.indexOf(item) === index);
-
-        // sort array
-        words.sort();
-
-        this.words = words;
+        this.words = _.sortBy(_.uniq(allWords));
     },
 
     /**
      * @function checkFiles
      * @description Checks if words.json exists or has different entries as this.word.
+     * @async
      */
-    checkFiles() {
+    async checkFiles() {
         console.log(`${this.name}: Checking files.`);
-        fs.stat('modules/MMM-voice/words.json', (error, stats) => {
-            if (!error && stats.isFile()) {
-                fs.readFile('modules/MMM-voice/words.json', 'utf8', (err, data) => {
-                    if (!err) {
-                        const words = JSON.parse(data).words;
-                        if (this.arraysEqual(this.words, words)) {
-                            this.startPocketsphinx();
-                            return;
-                        }
-                    }
-                    this.generateDicLM();
-                });
-            } else {
-                this.generateDicLM();
-            }
-        });
-    },
+        const file = 'modules/MMM-voice/words.json';
+        const exists = await fs.pathExists(file);
 
-    /**
-     * @function arraysEqual
-     * @description Compares two arrays.
-     *
-     * @param {string[]} a - First array
-     * @param {string[]} b - Second array
-     * @returns {boolean} Are the arrays equal or not.
-     */
-    arraysEqual(a, b) {
-        if (!(a instanceof Array) || !(b instanceof Array)) {
-            return false;
-        }
-
-        if (a.length !== b.length) {
-            return false;
-        }
-
-        for (let i = 0; i < a.length; i += 1) {
-            if (a[i] !== b[i]) {
-                return false;
+        if (exists) {
+            const words = await fs.readJson(file);
+            if (_.isEqual(this.words, words)) {
+                return this.startPocketsphinx();
             }
         }
 
-        return true;
+        this.generateDicLM();
     },
 
     /**
      * @function generateDicLM
      * @description Generates new Dictionairy and Language Model.
+     * @async
      */
-    generateDicLM() {
+    async generateDicLM() {
         console.log(`${this.name}: Generating dictionairy and language model.`);
 
-        fs.writeFile('modules/MMM-voice/words.json', JSON.stringify({ words: this.words }), (err) => {
-            if (err) {
-                console.log(`${this.name}: Couldn't save words.json!`);
-            } else {
-                console.log(`${this.name}: Saved words.json successfully.`);
-            }
-        });
+        await fs.writeJson('modules/MMM-voice/words.json', this.words);
 
-        lmtool(this.words, (err, filename) => {
+        lmtool(this.words, async (err, filename) => {
             if (err) {
                 this.sendSocketNotification('ERROR', 'Couldn\'t create necessary files!');
             } else {
-                fs.renameSync(`${filename}.dic`, 'modules/MMM-voice/MMM-voice.dic');
-                fs.renameSync(`${filename}.lm`, 'modules/MMM-voice/MMM-voice.lm');
+                await fs.move(`${filename}.dic`, 'modules/MMM-voice/MMM-voice.dic', {overwrite: true});
+                await fs.move(`${filename}.lm`, 'modules/MMM-voice/MMM-voice.lm', {overwrite: true});
 
                 this.startPocketsphinx();
 
-                fs.unlink(`${filename}.log_pronounce`, this.noOp);
-                fs.unlink(`${filename}.sent`, this.noOp);
-                fs.unlink(`${filename}.vocab`, this.noOp);
-                fs.unlink(`TAR${filename}.tgz`, this.noOp);
+                await fs.remove(`${filename}.log_pronounce`);
+                await fs.remove(`${filename}.sent`);
+                await fs.remove(`${filename}.vocab`);
+                await fs.remove(`TAR${filename}.tgz`);
             }
         });
     },
-
-    /**
-     * @function noOp
-     * @description Performs no operation.
-     */
-    noOp() {},
 
     /**
      * @function startPocketsphinx
@@ -251,12 +215,15 @@ module.exports = NodeHelper.create({
                 console.log(`${this.name} has recognized: ${data}`);
                 this.sendSocketNotification('DEBUG', data);
             }
-            if (data.includes(this.config.keyword) || this.listening) {
+
+            if (_.includes(data, this.config.keyword) || this.listening) {
                 this.listening = true;
                 this.sendSocketNotification('LISTENING');
+
                 if (this.timer) {
                     clearTimeout(this.timer);
                 }
+
                 this.timer = setTimeout(() => {
                     this.listening = false;
                     this.sendSocketNotification('SLEEPING');
@@ -267,11 +234,11 @@ module.exports = NodeHelper.create({
 
             let cleanData = this.cleanData(data);
 
-            for (let i = 0; i < this.modules.length; i += 1) {
-                const n = cleanData.indexOf(this.modules[i].mode);
-                if (n === 0) {
-                    this.mode = this.modules[i].mode;
-                    cleanData = cleanData.substr(n + this.modules[i].mode.length).trim();
+            for (const module of this.modules) {
+                const i = _.indexOf(cleanData, module.mode);
+                if (i === 0) {
+                    this.mode = module.mode;
+                    cleanData = _.trim(cleanData.substr(i + module.mode.length));
                     break;
                 }
             }
@@ -288,31 +255,34 @@ module.exports = NodeHelper.create({
     /**
      * @function logDebug
      * @description Logs debug information into debug log file.
+     * @async
      *
      * @param {string} data - Debug information
      */
-    logDebug(data) {
-        fs.appendFile('modules/MMM-voice/debug.log', data, (err) => {
-            if (err) {
-                console.log(`${this.name}: Couldn't save error to log file!`);
-            }
-        });
+    async logDebug(data) {
+        try {
+            await fs.appendFile('modules/MMM-voice/debug.log', `${data}\n`);
+        } catch(e) {
+            console.log(`${this.name}: Couldn't save debug information to log file!`, e);
+        }
     },
 
     /**
      * @function logError
      * @description Logs error information into error log file.
+     * @async
      *
-     * @param {string} data - Error information
+     * @param {string} error - Error information
      */
-    logError(error) {
+    async logError(error) {
         if (error) {
-            fs.appendFile('modules/MMM-voice/error.log', `${error}\n`, (err) => {
-                if (err) {
-                    console.log(`${this.name}: Couldn't save error to log file!`);
-                }
-                this.sendSocketNotification('ERROR', error);
-            });
+            try {
+                await fs.appendFile('modules/MMM-voice/error.log', `${error}\n`);
+            } catch(e) {
+                console.log(`${this.name}: Couldn't save error to log file!`, e);
+            }
+
+            this.sendSocketNotification('ERROR', error);
         }
     },
 
@@ -324,13 +294,33 @@ module.exports = NodeHelper.create({
      * @returns {string} Cleaned data
      */
     cleanData(data) {
-        let temp = data;
-        const i = temp.indexOf(this.config.keyword);
+        const i = _.indexOf(data, this.config.keyword);
+
         if (i !== -1) {
-            temp = temp.substr(i + this.config.keyword.length);
+            data = data.substr(i + this.config.keyword.length);
         }
-        temp = temp.replace(/ {2,}/g, ' ').trim();
-        return temp;
+
+        return _.trim(_.replace(data, / {2,}/g, ' '));
+    },
+
+    /**
+     * @function handleStandBy
+     * @description Handles stand by with various methods.
+     *
+     * @param {string} method - Stand by method to use.
+     * @param {string} action - Action to perform.
+     */
+    handleStandBy(method, action) {
+        if (this.standBy.hasOwnProperty(method)) {
+            if (this.standBy[method].hardware) {
+                exec(this.standBy[method][action], null);
+            }
+
+            this.sendSocketNotification('STAND_BY_ACTION', {
+                type: action,
+                hardware: this.standBy[method].hardware
+            });
+        }
     },
 
     /**
@@ -339,40 +329,10 @@ module.exports = NodeHelper.create({
      * @param {string} data - Recognized data
      */
     checkCommands(data) {
-        if (bytes.r[0].test(data) && bytes.r[1].test(data)) {
-            this.sendSocketNotification('BYTES', bytes.a);
-        } else if (/(WAKE)/g.test(data) && /(UP)/g.test(data)) {
-            const payload = { type: 'show', hardware: true };
-            switch (this.config.standByMethod.toUpperCase()) {
-            case 'PI':
-                exec('/opt/vc/bin/tvservice -p && sudo chvt 6 && sudo chvt 7', null);
-                break;
-            case 'HIDE':
-                payload.hardware = false;
-                break;
-            case 'DPMS':
-                exec('xset dpms force on', null);
-                break;
-            default:
-                break;
-            }
-            this.sendSocketNotification('STAND_BY_ACTION', payload);
+        if (/(WAKE)/g.test(data) && /(UP)/g.test(data)) {
+            this.handleStandBy(this.config.standByMethod.toUpperCase(), 'show');
         } else if (/(GO)/g.test(data) && /(SLEEP)/g.test(data)) {
-            const payload = { type: 'hide', hardware: true };
-            switch (this.config.standByMethod.toUpperCase()) {
-            case 'PI':
-                exec('/opt/vc/bin/tvservice -o', null);
-                break;
-            case 'HIDE':
-                payload.hardware = false;
-                break;
-            case 'DPMS':
-                exec('xset dpms force off', null);
-                break;
-            default:
-                break;
-            }
-            this.sendSocketNotification('STAND_BY_ACTION', payload);
+            this.handleStandBy(this.config.standByMethod.toUpperCase(), 'hide');
         } else if (/(SHOW)/g.test(data) && /(MODULES)/g.test(data)) {
             this.sendSocketNotification('SHOW');
         } else if (/(HIDE)/g.test(data) && /(MODULES)/g.test(data)) {
