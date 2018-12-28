@@ -2,6 +2,10 @@
 
 ## [2.0.0]
 
+### Added
+
+* Nunjuck templates
+
 ### Changed
 
 * Updated config files
@@ -13,6 +17,7 @@
 ### Removed
 
 * Bytes.js (easteregg)
+* Modals (help)
 
 ## [1.0.2]
 
