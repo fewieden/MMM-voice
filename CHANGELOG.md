@@ -5,6 +5,7 @@
 ### Added
 
 * Nunjuck templates
+* Multiple stand by methods
 
 ### Changed
 
