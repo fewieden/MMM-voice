@@ -1,9 +1,9 @@
 language: node_js
 node_js:
  - "stable"
- - "7"
- - "6"
- - "5"
+ - "8"
+ - "9"
+ - "10"
 script:
  - npm run lint
 cache:

@@ -5,11 +5,12 @@
   "source": {
     "include": [
       "package.json",
+      "LICENSE",
+      "DEVELOPER.md",
       "README.md"
     ],
     "exclude": [
-      "node_modules",
-      "Bytes.js"
+      "node_modules"
     ]
   },
   "opts": {

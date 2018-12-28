@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3>mmm-voice 2.0.0</h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><p><a href="https://raw.githubusercontent.com/fewieden/MMM-voice/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat" alt="GitHub license"></a> <a href="https://travis-ci.org/fewieden/MMM-voice"><img src="https://travis-ci.org/fewieden/MMM-voice.svg?branch=master" alt="Build Status"></a> <a href="https://codeclimate.com/github/fewieden/MMM-voice"><img src="https://codeclimate.com/github/fewieden/MMM-voice/badges/gpa.svg?style=flat" alt="Code Climate"></a> <a href="https://snyk.io/test/github/fewieden/mmm-voice"><img src="https://snyk.io/test/github/fewieden/mmm-voice/badge.svg" alt="Known Vulnerabilities"></a> <a href="https://fewieden.github.io/MMM-voice/"><img src="https://img.shields.io/badge/Documentation-master-brightgreen.svg" alt="Documentation"></a></p>
+<h1>MMM-voice</h1><p>Offline Voice Recognition Module for MagicMirror<sup>2</sup>.</p>
+<h2>Information</h2><p>This voice recognition works offline. To protect your privacy, no one will record what's going on in your room all day long.
+So keep in mind that there is no huge server farm, that handles your voice commands. The raspberry is just a small device and this is a cpu intensive task.
+Also the dictionary has only the words specified by the modules, so there is a chance for false positives.</p>
+<p>If you can live with latency, bugged detections and want to have data privacy, feel free to use this module.</p>
+<h2>Dependencies</h2><ul>
+<li>An installation of <a href="https://github.com/MichMich/MagicMirror">MagicMirror<sup>2</sup></a></li>
+<li>Packages: bison libasound2-dev autoconf automake libtool python-dev swig python-pip</li>
+<li><a href="https://github.com/cmusphinx/sphinxbase">SphinxBase</a></li>
+<li><a href="https://github.com/cmusphinx/pocketsphinx">PocketSphinx</a></li>
+<li>A microphone</li>
+<li>npm</li>
+<li><a href="https://www.npmjs.com/package/pocketsphinx-continuous">PocketSphinx-continuous</a></li>
+<li><a href="https://www.npmjs.com/package/lmtool">lmtool</a></li>
+<li><a href="https://www.npmjs.com/package/fs-extra">fs-extra</a></li>
+<li><a href="https://www.npmjs.com/package/lodash">lodash</a></li>
+</ul>
+<h2>Installation</h2><ol>
+<li>Clone this repo into <code>~/MagicMirror/modules</code> directory.</li>
+<li>Run command <code>bash dependencies.sh</code> in <code>~/MagicMirror/modules/MMM-voice/installers</code> directory, to install all dependencies. This will need a couple of minutes.</li>
+<li><p>Configure your <code>~/MagicMirror/config/config.js</code>:</p>
+<pre class="prettyprint source"><code> {
+     module: 'MMM-voice',
+     position: 'bottom_bar',
+     config: {
+         microphone: 1,
+         standByMethod: 'TVSERVICE',
+         ...        
+     }
+ }</code></pre></li>
+</ol>
+<h2>Config Options</h2><table>
+<thead>
+<tr>
+<th><strong>Option</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>microphone</code></td>
+<td>REQUIRED</td>
+<td>Id of microphone shown in the installer.</td>
+</tr>
+<tr>
+<td><code>keyword</code></td>
+<td><code>'MAGIC MIRROR'</code></td>
+<td>Keyword the mirror starts to listen. IMPORTANT: Only UPPERCASE Letters</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td><code>15</code></td>
+<td>time the keyword should be active without saying something</td>
+</tr>
+<tr>
+<td><code>standByMethod</code></td>
+<td><code>'TVSERVICE'</code></td>
+<td><code>'TVSERVICE'</code> uses the tvservice command available on Raspberry pi to turn off the HDMI monitor source (default). <br><code>'DPMS'</code> uses the exec DMPS command to turn off the monitor source (not on pi, or not hdmi). <br><code>'VCGENCMD'</code> uses the vcgencmd to turn on/off video output. <br><code>'HIDE'</code> hides all module contents, if display is on EnergyStar device that shows ugly 'no signal' screen for the other choices.</td>
+</tr>
+</tbody>
+</table>
+<h2>Usage</h2><p>You need to say your KEYWORD (Default: MAGIC MIRROR), when the KEYWORD is recognized the microphone will start to flash and as long as the microphone is flashing (timeout config option) the mirror will recognize COMMANDS or MODES (Keep in mind that the recognition will take a while, so when you say your COMMAND right before the microphone stops flashing the COMMAND will probably not recognized).</p>
+<p>Mode of this module: <code>VOICE</code></p>
+<p>COMMANDS:</p>
+<ul>
+<li>HIDE MODULES</li>
+<li>SHOW MODULES</li>
+<li>WAKE UP</li>
+<li>GO TO SLEEP</li>
+<li>OPEN HELP</li>
+<li>CLOSE HELP</li>
+</ul>
+<h3>Select Mode</h3><p>To select a MODE, the specific MODE has to be the first word of a COMMAND or right after the KEYWORD, when the microphone stopped flashing.</p>
+<h2>Supported modules</h2><p>List of all supported modules in the <a href="https://github.com/fewieden/MMM-voice/wiki/Supported-Modules">Wiki</a>.</p>
+<h2>Developer</h2><ul>
+<li><code>npm run lint</code> - Lints JS and CSS files.</li>
+<li><code>npm run docs</code> - Generates documentation.</li>
+</ul>
+<h3>Documentation</h3><p>The documentation can be found <a href="https://doclets.io/fewieden/MMM-voice/master">here</a></p>
+<h3>Developers Guide</h3><p>If you want to support your own module, check out the <a href="DEVELOPER.md">Guide</a> and add it to the <a href="https://github.com/fewieden/MMM-voice/wiki/Supported-Modules">Wiki</a>.</p></article>
+    </section>
+
+
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>MMM-voice.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">MMM-voice.js</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>fewieden</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+    <dt class="tag-license">License:</dt>
+    <dd class="tag-license"><ul class="dummy"><li>MIT</li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="MMM-voice.js.html">MMM-voice.js</a>, <a href="MMM-voice.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/fewieden/MMM-voice">https://github.com/fewieden/MMM-voice</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>node_helper.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">node_helper.js</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-author">Author:</dt>
+    <dd class="tag-author">
+        <ul>
+            <li>fewieden</li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+    <dt class="tag-license">License:</dt>
+    <dd class="tag-license"><ul class="dummy"><li>MIT</li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="node_helper.js.html">node_helper.js</a>, <a href="node_helper.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://github.com/fewieden/MMM-voice">https://github.com/fewieden/MMM-voice</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-MMM-voice.html">MMM-voice</a></li><li><a href="module-node_helper.html">node_helper</a></li></ul><h3>Externals</h3><ul><li><a href="external-child_process.html">child_process</a></li><li><a href="external-fs-extra.html">fs-extra</a></li><li><a href="external-lmtool.html">lmtool</a></li><li><a href="external-lodash.html">lodash</a></li><li><a href="external-Log.html">Log</a></li><li><a href="external-MM.html">MM</a></li><li><a href="external-Module.html">Module</a></li><li><a href="external-node_helper.html">node_helper</a></li><li><a href="external-pocketsphinx-continuous.html">pocketsphinx-continuous</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 28 2018 05:19:33 GMT+0100 (W. Europe Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,12 +1,14 @@
-# MMM-voice  [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-voice/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-voice.svg?branch=master)](https://travis-ci.org/fewieden/MMM-voice) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-voice/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-voice) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-voice/badge.svg)](https://snyk.io/test/github/fewieden/mmm-voice) [![API Doc](https://doclets.io/fewieden/MMM-voice/master.svg)](https://doclets.io/fewieden/MMM-voice/master)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://raw.githubusercontent.com/fewieden/MMM-voice/master/LICENSE) [![Build Status](https://travis-ci.org/fewieden/MMM-voice.svg?branch=master)](https://travis-ci.org/fewieden/MMM-voice) [![Code Climate](https://codeclimate.com/github/fewieden/MMM-voice/badges/gpa.svg?style=flat)](https://codeclimate.com/github/fewieden/MMM-voice) [![Known Vulnerabilities](https://snyk.io/test/github/fewieden/mmm-voice/badge.svg)](https://snyk.io/test/github/fewieden/mmm-voice) [![Documentation](https://img.shields.io/badge/Documentation-master-brightgreen.svg)](https://fewieden.github.io/MMM-voice/)
 
-Voice Recognition Module for MagicMirror<sup>2</sup>
+# MMM-voice
+
+Offline Voice Recognition Module for MagicMirror<sup>2</sup>.
 
 ## Information
 
 This voice recognition works offline. To protect your privacy, no one will record what's going on in your room all day long.
 So keep in mind that there is no huge server farm, that handles your voice commands. The raspberry is just a small device and this is a cpu intensive task.
-Also the dictionairy has only the words specified by the modules, so there is a chance for false positives.
+Also the dictionary has only the words specified by the modules, so there is a chance for false positives.
 
 If you can live with latency, bugged detections and want to have data privacy, feel free to use this module.
 
@@ -20,6 +22,8 @@ If you can live with latency, bugged detections and want to have data privacy, f
 * npm
 * [PocketSphinx-continuous](https://www.npmjs.com/package/pocketsphinx-continuous)
 * [lmtool](https://www.npmjs.com/package/lmtool)
+* [fs-extra](https://www.npmjs.com/package/fs-extra)
+* [lodash](https://www.npmjs.com/package/lodash)
 
 ## Installation
 
@@ -33,7 +37,8 @@ If you can live with latency, bugged detections and want to have data privacy, f
         position: 'bottom_bar',
         config: {
             microphone: 1,
-            ...
+            standByMethod: 'TVSERVICE',
+            ...		
         }
     }
     ```
@@ -45,10 +50,11 @@ If you can live with latency, bugged detections and want to have data privacy, f
 | `microphone` | REQUIRED | Id of microphone shown in the installer. |
 | `keyword` | `'MAGIC MIRROR'` | Keyword the mirror starts to listen. IMPORTANT: Only UPPERCASE Letters |
 | `timeout` | `15` | time the keyword should be active without saying something |
+| `standByMethod` | `'TVSERVICE'` | `'TVSERVICE'` uses the tvservice command available on Raspberry pi to turn off the HDMI monitor source (default). <br>`'DPMS'` uses the exec DMPS command to turn off the monitor source (not on pi, or not hdmi). <br>`'VCGENCMD'` uses the vcgencmd to turn on/off video output. <br>`'HIDE'` hides all module contents, if display is on EnergyStar device that shows ugly 'no signal' screen for the other choices. |
 
 ## Usage
 
-You need to say your KEYWORD (Default: MAGIC MIRROR), when the KEYWORD is recognized the microphone will start to flash and as long as the microphone is flashing (timeout config option) the mirror will recognize COMMANDS or MODES (Keep in mind that the recognition will take a while, so when you say your COMMAND right before the microphone stops flashing the COMMAND will propably not recognized).
+You need to say your KEYWORD (Default: MAGIC MIRROR), when the KEYWORD is recognized the microphone will start to flash and as long as the microphone is flashing (timeout config option) the mirror will recognize COMMANDS or MODES (Keep in mind that the recognition will take a while, so when you say your COMMAND right before the microphone stops flashing the COMMAND will probably not recognized).
 
 Mode of this module: `VOICE`
 
@@ -63,7 +69,7 @@ COMMANDS:
 
 ### Select Mode
 
-To select a MODE, the specfic MODE has to be the first word of a COMMAND or right after the KEYWORD, when the microphone stopped flashing.
+To select a MODE, the specific MODE has to be the first word of a COMMAND or right after the KEYWORD, when the microphone stopped flashing.
 
 ## Supported modules
 
